@@ -1,0 +1,1266 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1, user-scalable=no">
+<title>Big Brightday Energy — Darts Scoreboard</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Crimson+Pro:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --cream:#F1E6CC;
+    --cream-dark:#E2D2A8;
+    --cream-darker:#D3BE8E;
+    --ink:#211A13;
+    --ink-soft:#4a3f32;
+    --red:#9C2B22;
+    --red-dark:#7A1F1A;
+    --green:#1F4034;
+    --green-dark:#153027;
+    --brass:#B5854A;
+    --brass-light:#DDB679;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0; height:100%;}
+  body{
+    background:
+      radial-gradient(ellipse at 50% -10%, rgba(255,255,255,0.05), transparent 55%),
+      repeating-linear-gradient(90deg,
+        #2c1a0f 0px, #35210f 18px, #2a1710 19px, #3a2415 55px,
+        #2e1a0d 56px, #402812 95px, #2c1a0f 96px, #34200f 140px),
+      linear-gradient(180deg, #241408, #1a0e05);
+    color:var(--ink);
+    font-family:'Crimson Pro', Georgia, serif;
+    min-height:100vh;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    padding:0;
+  }
+
+  .app-shell{
+    width:100%;
+    max-width:430px;
+    min-height:100vh;
+    background:var(--cream);
+    display:flex;
+    flex-direction:column;
+    position:relative;
+    border-left:5px solid var(--brass);
+    border-right:5px solid var(--brass);
+    box-shadow:0 0 0 1px rgba(0,0,0,0.4), 0 18px 50px rgba(0,0,0,0.55);
+  }
+  .app-shell::before, .app-shell::after{
+    content:'';
+    position:absolute;
+    top:0; bottom:0;
+    width:10px;
+    background:repeating-linear-gradient(180deg, rgba(0,0,0,0.18) 0px, rgba(0,0,0,0.18) 3px, transparent 3px, transparent 9px);
+    pointer-events:none;
+  }
+  .app-shell::before{left:-5px;}
+  .app-shell::after{right:-5px;}
+  @media (min-width:480px){
+    body{padding:26px 0;}
+    .app-shell{min-height:calc(100vh - 52px); border-radius:14px; overflow:hidden;
+      box-shadow:0 0 0 1px rgba(0,0,0,0.4), 0 24px 60px rgba(0,0,0,0.6);}
+  }
+  .display{font-family:'Bebas Neue', 'Arial Narrow', sans-serif; letter-spacing:0.03em;}
+
+  header{
+    width:100%;
+    background:var(--ink);
+    border-bottom:4px solid var(--brass);
+    padding:9px 16px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    gap:10px;
+  }
+  header h1{
+    font-family:'Bebas Neue', sans-serif;
+    color:var(--cream);
+    font-size:1.7rem;
+    letter-spacing:0.05em;
+    margin:0;
+    line-height:1.15;
+    text-align:center;
+  }
+  header .dart-emoji{font-size:1.5rem;}
+  header .tagline{
+    color:var(--brass-light);
+    font-size:0.7rem;
+    letter-spacing:0.12em;
+    display:block;
+    text-align:center;
+    margin-top:2px;
+  }
+  .header-stack{display:flex;flex-direction:column;align-items:center;}
+
+  main{
+    width:100%;
+    padding:12px 14px 20px;
+    flex:1;
+    display:flex;
+    flex-direction:column;
+  }
+
+  .screen{display:none; flex-direction:column; gap:14px; animation:fadein 0.25s ease;}
+  .screen.active{display:flex;}
+  @keyframes fadein{from{opacity:0; transform:translateY(6px);} to{opacity:1; transform:translateY(0);}}
+
+  h2.section-title{
+    font-family:'Bebas Neue', sans-serif;
+    font-size:1.5rem;
+    letter-spacing:0.05em;
+    color:var(--ink);
+    margin:0 0 2px 0;
+    border-bottom:2px solid var(--brass);
+    padding-bottom:8px;
+  }
+  p.hint{margin:0; color:var(--ink-soft); font-size:0.95rem;}
+
+  .choice-grid{
+    display:grid;
+    grid-template-columns:repeat(3, 1fr);
+    gap:10px;
+  }
+  .choice-grid.five{grid-template-columns:repeat(5, 1fr);}
+  .name-grid{
+    display:grid;
+    grid-template-columns:repeat(2, 1fr);
+    gap:10px;
+  }
+
+  button{
+    font-family:'Crimson Pro', Georgia, serif;
+    font-size:1.05rem;
+    font-weight:600;
+    cursor:pointer;
+    border:2px solid var(--brass);
+    background:var(--cream-dark);
+    color:var(--ink);
+    border-radius:6px;
+    padding:14px 10px;
+    transition:background 0.12s, color 0.12s, transform 0.05s, border-color 0.12s;
+    min-height:50px;
+  }
+  button:active{transform:scale(0.97);}
+  button:hover{background:var(--cream-darker);}
+  button.selected{
+    background:var(--green);
+    color:var(--cream);
+    border-color:var(--brass-light);
+  }
+  button.selected:hover{background:var(--green-dark);}
+  button.primary{
+    background:var(--red);
+    color:var(--cream);
+    border-color:var(--brass-light);
+    font-family:'Bebas Neue', sans-serif;
+    letter-spacing:0.06em;
+    font-size:1.15rem;
+  }
+  button.primary:hover{background:var(--red-dark);}
+  button.primary:disabled{
+    background:#b8a98c; border-color:#b8a98c; color:#8a7c62; cursor:not-allowed;
+  }
+  button.ghost{
+    background:transparent;
+    border-color:var(--ink-soft);
+    color:var(--ink-soft);
+  }
+  button.ghost:hover{background:rgba(0,0,0,0.05);}
+  button.small{padding:9px 8px; font-size:0.85rem; min-height:38px;}
+
+  .row{display:flex; gap:10px;}
+  .row > *{flex:1;}
+
+  .toggle-line{
+    display:flex; align-items:center; gap:10px;
+    background:var(--cream-dark);
+    border:2px solid var(--brass);
+    border-radius:6px;
+    padding:12px 14px;
+    cursor:pointer;
+    user-select:none;
+  }
+  .toggle-line input{width:20px; height:20px; accent-color:var(--green);}
+  .toggle-line span{font-size:0.95rem;}
+
+  /* --- Name select screen --- */
+  .player-progress{
+    font-family:'Bebas Neue', sans-serif;
+    font-size:1.05rem;
+    letter-spacing:0.06em;
+    color:var(--brass);
+  }
+  .other-input{
+    display:none;
+    margin-top:4px;
+    grid-column:1 / -1;
+  }
+  .other-input input{
+    width:100%;
+    padding:12px;
+    font-family:'Crimson Pro', serif;
+    font-size:1rem;
+    border:2px solid var(--brass);
+    border-radius:6px;
+    background:var(--cream);
+    color:var(--ink);
+  }
+  .other-input.show{display:block;}
+
+  .taken-list{font-size:0.85rem; color:var(--ink-soft); min-height:1.2em;}
+
+  /* --- Game screen --- */
+  .scoreboard{
+    display:flex;
+    gap:8px;
+    overflow-x:auto;
+    padding-bottom:4px;
+  }
+  .player-card{
+    flex:0 0 auto;
+    min-width:98px;
+    background:var(--cream-dark);
+    border:2px solid var(--brass);
+    border-radius:6px;
+    padding:8px 10px;
+    text-align:center;
+    position:relative;
+  }
+  .player-card.active{
+    background:var(--green);
+    color:var(--cream);
+    border-color:var(--red);
+    border-top:4px solid var(--red);
+  }
+  .player-card .p-name{
+    font-size:0.78rem;
+    letter-spacing:0.03em;
+    text-transform:uppercase;
+    opacity:0.85;
+    white-space:nowrap;
+    overflow:hidden;
+    text-overflow:ellipsis;
+  }
+  .player-card .p-score{
+    font-family:'Bebas Neue', sans-serif;
+    font-size:1.7rem;
+    line-height:1.1;
+  }
+  .player-card .p-avg{font-size:0.68rem; opacity:0.75;}
+
+  .turn-panel{
+    background:var(--green);
+    border:3px solid var(--brass);
+    border-radius:10px;
+    padding:12px 16px;
+    text-align:center;
+    color:var(--cream);
+  }
+  .turn-panel .turn-who{
+    font-family:'Bebas Neue', sans-serif;
+    letter-spacing:0.08em;
+    font-size:1rem;
+    color:var(--brass-light);
+    margin-bottom:0;
+  }
+  .turn-panel .turn-remaining{
+    font-family:'Bebas Neue', sans-serif;
+    font-size:2.9rem;
+    line-height:1;
+    text-shadow:0 0 10px rgba(241,230,204,0.25);
+  }
+  .turn-panel .turn-sub{font-size:0.8rem; color:var(--cream-darker); margin-top:2px;}
+
+  .dart-slots{
+    display:flex;
+    gap:8px;
+    justify-content:center;
+    margin-top:10px;
+  }
+  .dart-slot{
+    width:60px;
+    height:42px;
+    border:2px dashed rgba(241,230,204,0.5);
+    border-radius:6px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-family:'Bebas Neue', sans-serif;
+    font-size:1.1rem;
+    color:var(--cream);
+  }
+  .dart-slot.filled{
+    border-style:solid;
+    border-color:var(--brass-light);
+    background:rgba(241,230,204,0.08);
+  }
+
+  .turn-message{
+    margin-top:12px;
+    font-family:'Bebas Neue', sans-serif;
+    letter-spacing:0.06em;
+    font-size:1.3rem;
+    padding:8px;
+    border-radius:6px;
+    display:none;
+  }
+  .turn-message.show{display:block;}
+  .turn-message.bust{background:var(--red); color:var(--cream);}
+  .turn-message.win{background:var(--brass); color:var(--ink);}
+
+  .next-player-btn{display:none; margin-top:12px;}
+  .next-player-btn.show{display:inline-block; width:100%;}
+
+  .mode-row{display:flex; gap:8px;}
+  .mode-row button{flex:1; font-family:'Bebas Neue', sans-serif; letter-spacing:0.05em; font-size:0.95rem;}
+
+  #dartbydart-panel, #quick-panel{display:flex; flex-direction:column; gap:12px;}
+  .hidden-panel{display:none !important;}
+
+  .mult-row{display:flex; gap:8px;}
+  .mult-row button{flex:1; font-family:'Bebas Neue', sans-serif; letter-spacing:0.05em;}
+
+  .quick-chips{
+    display:grid;
+    grid-template-columns:repeat(5, 1fr);
+    gap:8px;
+  }
+  .quick-chips button{
+    font-family:'Bebas Neue', sans-serif;
+    font-size:1.05rem;
+    padding:10px 4px;
+    min-height:42px;
+    background:var(--cream);
+  }
+  .quick-display{
+    background:var(--ink);
+    color:var(--cream);
+    font-family:'Bebas Neue', sans-serif;
+    font-size:2.6rem;
+    text-align:center;
+    border-radius:8px;
+    padding:10px;
+    letter-spacing:0.04em;
+    border:2px solid var(--brass);
+  }
+  .quick-keypad{
+    display:grid;
+    grid-template-columns:repeat(3, 1fr);
+    gap:8px;
+  }
+  .quick-keypad button{
+    font-family:'Bebas Neue', sans-serif;
+    font-size:1.4rem;
+    min-height:50px;
+  }
+  .quick-keypad button.func{
+    background:var(--cream-darker);
+  }
+  #finish-double-row{margin-top:2px;}
+  .quick-hint{
+    font-size:0.82rem;
+    color:var(--ink-soft);
+    text-align:center;
+    min-height:1.1em;
+  }
+  .confirm-row{display:none; gap:10px;}
+  .confirm-row.show{display:flex;}
+
+  .pad{
+    display:grid;
+    grid-template-columns:repeat(5, 1fr);
+    gap:7px;
+  }
+  .pad button{
+    font-family:'Bebas Neue', sans-serif;
+    font-size:1.2rem;
+    padding:10px 4px;
+    min-height:42px;
+  }
+  .pad button.wide{grid-column:span 1; font-size:0.85rem; font-family:'Crimson Pro',serif; font-weight:700;}
+
+  .undo-row{display:flex; gap:10px;}
+
+  details.history{
+    background:var(--cream-dark);
+    border:2px solid var(--brass);
+    border-radius:6px;
+    padding:10px 14px;
+  }
+  details.history summary{
+    cursor:pointer;
+    font-family:'Bebas Neue', sans-serif;
+    letter-spacing:0.05em;
+    font-size:1rem;
+  }
+  .hist-player{margin-top:10px;}
+  .hist-player h4{
+    margin:8px 0 4px;
+    font-size:0.95rem;
+    border-bottom:1px solid var(--brass);
+    padding-bottom:2px;
+  }
+  .hist-player ul{margin:0; padding-left:18px; font-size:0.85rem;}
+  .hist-player li.bust{color:var(--red); font-weight:700;}
+
+  .top-bar{display:flex; justify-content:space-between; align-items:center;}
+  .top-bar button{padding:8px 12px; min-height:auto;}
+
+  /* --- winner screen --- */
+  .winner-card{
+    background:var(--green);
+    color:var(--cream);
+    border:3px solid var(--brass-light);
+    border-radius:12px;
+    padding:28px 20px;
+    text-align:center;
+  }
+  .winner-card .trophy{font-size:2.6rem;}
+  .winner-card h2{
+    font-family:'Bebas Neue', sans-serif;
+    font-size:2.4rem;
+    letter-spacing:0.05em;
+    margin:6px 0 2px;
+  }
+  .winner-card p{margin:2px 0; color:var(--cream-darker);}
+  .stats-table{
+    width:100%;
+    border-collapse:collapse;
+    margin-top:10px;
+    font-size:0.9rem;
+  }
+  .stats-table th, .stats-table td{
+    padding:8px 6px;
+    border-bottom:1px solid var(--brass);
+    text-align:left;
+  }
+  .stats-table th{color:var(--brass-light); font-weight:600;}
+
+  footer{
+    text-align:center;
+    color:var(--ink-soft);
+    font-size:0.75rem;
+    padding:10px 0 24px;
+    opacity:0.7;
+  }
+
+  @media (max-width:380px){
+    header h1{font-size:1.4rem;}
+    .turn-panel .turn-remaining{font-size:2.9rem;}
+    .dart-slot{width:54px; height:46px; font-size:1rem;}
+    .player-card{min-width:86px;}
+  }
+</style>
+</head>
+<body>
+
+<div class="app-shell">
+
+<header>
+  <div class="header-stack">
+    <h1><span class="dart-emoji">🎯</span> BIG BRIGHTDAY ENERGY</h1>
+    <span class="tagline">DARTS SCOREBOARD</span>
+  </div>
+</header>
+
+<main>
+
+  <!-- SCREEN 1: SETUP -->
+  <section class="screen active" id="screen-setup">
+    <div>
+      <h2 class="section-title">How many players?</h2>
+      <div class="choice-grid five" id="player-count-grid"></div>
+    </div>
+
+    <div>
+      <h2 class="section-title">Starting score</h2>
+      <div class="choice-grid" id="start-score-grid"></div>
+    </div>
+
+    <label class="toggle-line">
+      <input type="checkbox" id="double-out-toggle" checked>
+      <span>Finish on a double (standard rules)</span>
+    </label>
+
+    <button class="primary" id="setup-continue">Choose players →</button>
+  </section>
+
+  <!-- SCREEN 2: NAMES -->
+  <section class="screen" id="screen-names">
+    <div>
+      <span class="player-progress" id="player-progress">PLAYER 1 OF 2</span>
+      <h2 class="section-title" style="border:none; padding-bottom:0; margin-top:4px;">Who's throwing?</h2>
+    </div>
+    <div class="name-grid" id="name-grid"></div>
+    <div class="taken-list" id="taken-list"></div>
+    <div class="row">
+      <button class="ghost" id="names-back">← Back</button>
+      <button class="primary" id="names-next" disabled>Next →</button>
+    </div>
+  </section>
+
+  <!-- SCREEN 3: GAME -->
+  <section class="screen" id="screen-game">
+    <div class="top-bar">
+      <span class="player-progress" id="game-title">501 · DOUBLE OUT</span>
+      <button class="ghost small" id="restart-btn">New game</button>
+    </div>
+    <div class="row confirm-row" id="restart-confirm-row">
+      <button class="primary small" id="restart-yes">Yes, start over</button>
+      <button class="ghost small" id="restart-no">Cancel</button>
+    </div>
+
+    <div class="scoreboard" id="scoreboard"></div>
+
+    <div class="turn-panel">
+      <div class="turn-who" id="turn-who">TAYLOR'S TURN</div>
+      <div class="turn-remaining" id="turn-remaining">501</div>
+      <div class="turn-sub" id="turn-sub">Turn total: 0</div>
+      <div class="dart-slots" id="dart-slots-wrap">
+        <div class="dart-slot" id="dart-slot-0">1</div>
+        <div class="dart-slot" id="dart-slot-1">2</div>
+        <div class="dart-slot" id="dart-slot-2">3</div>
+      </div>
+      <div class="turn-message" id="turn-message"></div>
+      <button class="primary next-player-btn" id="next-player-btn">Next player →</button>
+    </div>
+
+    <div class="mode-row" id="mode-row">
+      <button class="selected" data-mode="dart">Dart by dart</button>
+      <button data-mode="quick">Quick total</button>
+    </div>
+
+    <div id="dartbydart-panel">
+      <div class="mult-row" id="mult-row">
+        <button class="selected" data-mult="1">SINGLE</button>
+        <button data-mult="2">DOUBLE</button>
+        <button data-mult="3">TRIPLE</button>
+      </div>
+
+      <div class="pad" id="number-pad"></div>
+
+      <div class="undo-row">
+        <button class="ghost" id="undo-btn">↩ Undo last dart</button>
+      </div>
+    </div>
+
+    <div id="quick-panel" class="hidden-panel">
+      <div class="quick-chips" id="quick-chips"></div>
+      <div class="quick-display" id="quick-display">0</div>
+      <div class="quick-keypad" id="quick-keypad"></div>
+      <label class="toggle-line" id="finish-double-row" style="display:none;">
+        <input type="checkbox" id="finish-double-check">
+        <span>Finished on a double</span>
+      </label>
+      <div class="quick-hint" id="quick-hint"></div>
+      <button class="primary" id="quick-submit">Score this visit</button>
+    </div>
+
+    <details class="history">
+      <summary>Leg history</summary>
+      <div id="history-content"></div>
+    </details>
+  </section>
+
+  <!-- SCREEN 4: WINNER -->
+  <section class="screen" id="screen-winner">
+    <div class="winner-card">
+      <div class="trophy">🏆</div>
+      <h2 id="winner-name">TAYLOR WINS!</h2>
+      <p id="winner-checkout">Checked out on D20</p>
+      <table class="stats-table" id="stats-table"></table>
+    </div>
+    <div class="row">
+      <button class="primary" id="new-leg-btn">Rematch, same players</button>
+    </div>
+    <button class="ghost" id="new-match-btn">Start over with new players</button>
+  </section>
+
+</main>
+
+<footer>Grab your darts and bring the energy. Good luck at the oche.</footer>
+
+</div>
+
+<script>
+const NAME_OPTIONS = ["Taylor","Max","Michael","Nathan","Anders","Chanelle","Rose","Pat","Caillin","Other"];
+
+let numPlayers = 2;
+let startScore = 501;
+let doubleOut = true;
+
+let players = [];        // {name, score, dartsThrown, totalScored, turns:[]}
+let currentPlayerIndex = 0;
+let turnDarts = [];      // {label, points}
+let turnStartScore = 0;
+let turnEnded = false;
+let selectedMult = 1;
+let entryMode = 'dart';   // 'dart' or 'quick'
+let quickValue = '0';
+const QUICK_CHIPS = [26,41,45,60,81,85,96,100,140,180];
+
+let nameSlots = [];       // chosen name per slot, index = player number
+let nameSlotIndex = 0;
+let pendingOther = "";
+let winnerInfo = null;    // {name, finalDart}
+let currentScreenId = 'screen-setup';
+const SAVE_KEY = 'darts-oche-state';
+
+// ---------- SAVE / LOAD ----------
+function saveState(){
+  const snapshot = {
+    screen: currentScreenId,
+    numPlayers, startScore, doubleOut,
+    nameSlots, nameSlotIndex,
+    players, currentPlayerIndex,
+    entryMode, winnerInfo
+  };
+  try{
+    window.storage.set(SAVE_KEY, JSON.stringify(snapshot), false).catch(() => {});
+  }catch(e){ /* storage unavailable — game still works, just won't persist */ }
+}
+
+async function loadState(){
+  let s = null;
+  try{
+    const result = await window.storage.get(SAVE_KEY);
+    if (result && result.value) s = JSON.parse(result.value);
+  }catch(e){ s = null; }
+  if (!s) return false;
+
+  numPlayers = s.numPlayers || 2;
+  startScore = s.startScore || 501;
+  doubleOut = s.doubleOut !== false;
+  nameSlots = s.nameSlots || [];
+  nameSlotIndex = s.nameSlotIndex || 0;
+  players = s.players || [];
+  currentPlayerIndex = s.currentPlayerIndex || 0;
+  entryMode = s.entryMode || 'dart';
+  winnerInfo = s.winnerInfo || null;
+
+  document.getElementById('double-out-toggle').checked = doubleOut;
+  buildSetupScreen();
+
+  if (s.screen === 'screen-game' && players.length){
+    buildNumberPad();
+    buildQuickPanel();
+    document.querySelectorAll('#mode-row button').forEach(b => {
+      b.classList.toggle('selected', b.dataset.mode === entryMode);
+    });
+    document.getElementById('dartbydart-panel').classList.toggle('hidden-panel', entryMode !== 'dart');
+    document.getElementById('quick-panel').classList.toggle('hidden-panel', entryMode !== 'quick');
+    document.getElementById('dart-slots-wrap').style.display = entryMode === 'dart' ? 'flex' : 'none';
+    document.getElementById('game-title').textContent =
+        `${startScore} · ${doubleOut ? 'DOUBLE OUT' : 'OPEN FINISH'}`;
+    beginTurn();
+    showScreen('screen-game');
+  } else if (s.screen === 'screen-winner' && winnerInfo){
+    buildNumberPad();
+    buildQuickPanel();
+    renderWinnerScreen(winnerInfo.name, winnerInfo.finalDart);
+  } else if (s.screen === 'screen-names' && numPlayers){
+    showScreen('screen-names');
+    buildNameScreen();
+  } else {
+    showScreen('screen-setup');
+  }
+  return true;
+}
+
+// ---------- SCREEN SWITCHING ----------
+function showScreen(id){
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  window.scrollTo(0,0);
+  currentScreenId = id;
+  saveState();
+}
+
+// ---------- SETUP SCREEN ----------
+function buildSetupScreen(){
+  const pcGrid = document.getElementById('player-count-grid');
+  pcGrid.innerHTML = '';
+  [2,3,4,5,6].forEach(n => {
+    const b = document.createElement('button');
+    b.textContent = n;
+    b.className = n === numPlayers ? 'selected' : '';
+    b.addEventListener('click', () => { numPlayers = n; buildSetupScreen(); saveState(); });
+    pcGrid.appendChild(b);
+  });
+
+  const ssGrid = document.getElementById('start-score-grid');
+  ssGrid.innerHTML = '';
+  [301,501,701].forEach(n => {
+    const b = document.createElement('button');
+    b.textContent = n;
+    b.className = n === startScore ? 'selected' : '';
+    b.addEventListener('click', () => { startScore = n; buildSetupScreen(); saveState(); });
+    ssGrid.appendChild(b);
+  });
+}
+document.getElementById('double-out-toggle').addEventListener('change', e => {
+  doubleOut = e.target.checked;
+  saveState();
+});
+document.getElementById('setup-continue').addEventListener('click', () => {
+  nameSlots = new Array(numPlayers).fill(null);
+  nameSlotIndex = 0;
+  showScreen('screen-names');
+  buildNameScreen();
+});
+
+// ---------- NAME SELECT SCREEN ----------
+function buildNameScreen(){
+  document.getElementById('player-progress').textContent = `PLAYER ${nameSlotIndex+1} OF ${numPlayers}`;
+  const grid = document.getElementById('name-grid');
+  grid.innerHTML = '';
+  pendingOther = (nameSlots[nameSlotIndex] && nameSlots[nameSlotIndex].startsWith('__OTHER__'))
+      ? nameSlots[nameSlotIndex].slice(9) : '';
+
+  const takenElsewhere = nameSlots
+      .filter((n,i) => i !== nameSlotIndex && n && n !== 'Other' && !n.startsWith('__OTHER__'));
+
+  NAME_OPTIONS.forEach(name => {
+    const b = document.createElement('button');
+    b.textContent = name;
+    const isCurrentSelection = nameSlots[nameSlotIndex] === name ||
+        (name === 'Other' && nameSlots[nameSlotIndex] && nameSlots[nameSlotIndex].startsWith('__OTHER__'));
+    if (isCurrentSelection) b.classList.add('selected');
+    if (name !== 'Other' && takenElsewhere.includes(name)){
+      b.disabled = true;
+      b.style.opacity = '0.4';
+    }
+    b.addEventListener('click', () => {
+      if (name === 'Other'){
+        nameSlots[nameSlotIndex] = '__OTHER__' + pendingOther;
+        buildNameScreen();
+        document.getElementById('other-name-input').focus();
+      } else {
+        nameSlots[nameSlotIndex] = name;
+        buildNameScreen();
+      }
+      saveState();
+    });
+    grid.appendChild(b);
+  });
+
+  const otherWrap = document.createElement('div');
+  otherWrap.className = 'other-input' + (nameSlots[nameSlotIndex] && nameSlots[nameSlotIndex].startsWith('__OTHER__') ? ' show' : '');
+  otherWrap.innerHTML = `<input type="text" id="other-name-input" placeholder="Type a name…" maxlength="16" value="${pendingOther.replace(/"/g,'&quot;')}">`;
+  grid.appendChild(otherWrap);
+  const otherInput = document.getElementById('other-name-input');
+  if (otherInput){
+    otherInput.addEventListener('input', e => {
+      nameSlots[nameSlotIndex] = '__OTHER__' + e.target.value.trim();
+      updateNextButton();
+      updateTakenList();
+      saveState();
+    });
+  }
+
+  updateTakenList();
+  updateNextButton();
+
+  document.getElementById('names-back').disabled = nameSlotIndex === 0;
+  document.getElementById('names-back').style.visibility = nameSlotIndex === 0 ? 'hidden' : 'visible';
+}
+
+function resolvedName(slotValue){
+  if (!slotValue) return '';
+  if (slotValue.startsWith('__OTHER__')) return slotValue.slice(9).trim();
+  return slotValue;
+}
+
+function updateTakenList(){
+  const chosen = nameSlots.map(resolvedName).filter(Boolean);
+  document.getElementById('taken-list').textContent = chosen.length
+      ? 'So far: ' + chosen.join(', ')
+      : '';
+}
+
+function updateNextButton(){
+  const val = resolvedName(nameSlots[nameSlotIndex]);
+  document.getElementById('names-next').disabled = !val;
+  document.getElementById('names-next').textContent = (nameSlotIndex === numPlayers - 1) ? 'Start the game →' : 'Next →';
+}
+
+document.getElementById('names-back').addEventListener('click', () => {
+  if (nameSlotIndex === 0) return;
+  nameSlotIndex--;
+  buildNameScreen();
+  saveState();
+});
+document.getElementById('names-next').addEventListener('click', () => {
+  if (!resolvedName(nameSlots[nameSlotIndex])) return;
+  if (nameSlotIndex < numPlayers - 1){
+    nameSlotIndex++;
+    buildNameScreen();
+    saveState();
+  } else {
+    startGame();
+  }
+});
+
+// ---------- GAME SETUP ----------
+function startGame(){
+  players = nameSlots.map(slot => ({
+    name: resolvedName(slot) || 'Player',
+    score: startScore,
+    dartsThrown: 0,
+    totalScored: 0,
+    turns: []
+  }));
+  currentPlayerIndex = 0;
+  document.getElementById('game-title').textContent =
+      `${startScore} · ${doubleOut ? 'DOUBLE OUT' : 'OPEN FINISH'}`;
+  buildNumberPad();
+  buildQuickPanel();
+  beginTurn();
+  showScreen('screen-game');
+}
+
+function beginTurn(){
+  turnDarts = [];
+  turnStartScore = players[currentPlayerIndex].score;
+  turnEnded = false;
+  selectedMult = 1;
+  quickValue = '0';
+  document.querySelectorAll('#mult-row button').forEach(b => {
+    b.classList.toggle('selected', b.dataset.mult === '1');
+  });
+  document.getElementById('finish-double-check').checked = false;
+  document.getElementById('finish-double-row').style.display = 'none';
+  document.getElementById('turn-message').className = 'turn-message';
+  document.getElementById('turn-message').textContent = '';
+  document.getElementById('next-player-btn').classList.remove('show');
+  setPadEnabled(true);
+  updateQuickDisplay();
+  render();
+}
+
+// ---------- NUMBER PAD ----------
+function buildNumberPad(){
+  const pad = document.getElementById('number-pad');
+  pad.innerHTML = '';
+  for (let n = 1; n <= 20; n++){
+    const b = document.createElement('button');
+    b.textContent = n;
+    b.addEventListener('click', () => throwDart(n, 'number'));
+    pad.appendChild(b);
+  }
+  const bull25 = document.createElement('button');
+  bull25.textContent = '25';
+  bull25.className = 'wide';
+  bull25.addEventListener('click', () => throwDart(25, 'bull25'));
+  pad.appendChild(bull25);
+
+  const bull50 = document.createElement('button');
+  bull50.textContent = 'BULL 50';
+  bull50.className = 'wide';
+  bull50.addEventListener('click', () => throwDart(50, 'bull50'));
+  pad.appendChild(bull50);
+
+  const miss = document.createElement('button');
+  miss.textContent = 'MISS';
+  miss.className = 'wide';
+  miss.addEventListener('click', () => throwDart(0, 'miss'));
+  pad.appendChild(miss);
+}
+
+document.querySelectorAll('#mult-row button').forEach(b => {
+  b.addEventListener('click', () => {
+    selectedMult = parseInt(b.dataset.mult, 10);
+    document.querySelectorAll('#mult-row button').forEach(x => x.classList.remove('selected'));
+    b.classList.add('selected');
+  });
+});
+
+function setPadEnabled(enabled){
+  document.querySelectorAll('#number-pad button, #mult-row button, #undo-btn').forEach(b => {
+    b.disabled = !enabled;
+  });
+  document.querySelectorAll('#quick-chips button, #quick-keypad button').forEach(b => {
+    b.disabled = !enabled;
+  });
+  document.getElementById('finish-double-check').disabled = !enabled;
+  updateQuickSubmitState();
+}
+
+// ---------- MODE TOGGLE ----------
+document.querySelectorAll('#mode-row button').forEach(b => {
+  b.addEventListener('click', () => {
+    entryMode = b.dataset.mode;
+    document.querySelectorAll('#mode-row button').forEach(x => x.classList.remove('selected'));
+    b.classList.add('selected');
+    document.getElementById('dartbydart-panel').classList.toggle('hidden-panel', entryMode !== 'dart');
+    document.getElementById('quick-panel').classList.toggle('hidden-panel', entryMode !== 'quick');
+    document.getElementById('dart-slots-wrap').style.display = entryMode === 'dart' ? 'flex' : 'none';
+    // switching mode mid-visit clears any unentered progress for this turn
+    turnDarts = [];
+    quickValue = '0';
+    render();
+    updateQuickDisplay();
+  });
+});
+
+// ---------- QUICK SCORE PANEL ----------
+function buildQuickPanel(){
+  const chips = document.getElementById('quick-chips');
+  chips.innerHTML = '';
+  QUICK_CHIPS.forEach(v => {
+    const b = document.createElement('button');
+    b.textContent = v;
+    b.addEventListener('click', () => {
+      if (turnEnded) return;
+      quickValue = String(v);
+      updateQuickDisplay();
+    });
+    chips.appendChild(b);
+  });
+
+  const keypad = document.getElementById('quick-keypad');
+  keypad.innerHTML = '';
+  const keys = ['1','2','3','4','5','6','7','8','9','C','0','⌫'];
+  keys.forEach(k => {
+    const b = document.createElement('button');
+    b.textContent = k;
+    if (k === 'C' || k === '⌫') b.classList.add('func');
+    b.addEventListener('click', () => {
+      if (turnEnded) return;
+      if (k === 'C'){
+        quickValue = '0';
+      } else if (k === '⌫'){
+        quickValue = quickValue.length > 1 ? quickValue.slice(0, -1) : '0';
+      } else {
+        const candidate = (quickValue === '0' ? '' : quickValue) + k;
+        if (candidate.length <= 3 && parseInt(candidate, 10) <= 180){
+          quickValue = candidate;
+        }
+      }
+      updateQuickDisplay();
+    });
+    keypad.appendChild(b);
+  });
+}
+
+function updateQuickDisplay(){
+  document.getElementById('quick-display').textContent = quickValue;
+  const val = parseInt(quickValue, 10) || 0;
+  const player = players[currentPlayerIndex];
+  const remainingIfScored = player ? player.score - val : 0;
+  const showFinishCheck = doubleOut && remainingIfScored === 0;
+  const row = document.getElementById('finish-double-row');
+  row.style.display = showFinishCheck ? 'flex' : 'none';
+  if (!showFinishCheck) document.getElementById('finish-double-check').checked = false;
+  updateQuickSubmitState();
+}
+
+function updateQuickSubmitState(){
+  const btn = document.getElementById('quick-submit');
+  const hint = document.getElementById('quick-hint');
+  if (!btn) return;
+  if (turnEnded){ btn.disabled = true; hint.textContent = ''; return; }
+  const val = parseInt(quickValue, 10) || 0;
+  const player = players[currentPlayerIndex];
+  if (!player){ btn.disabled = true; return; }
+  const remainingIfScored = player.score - val;
+  const needsDoubleConfirm = doubleOut && remainingIfScored === 0;
+  const checked = document.getElementById('finish-double-check').checked;
+  if (needsDoubleConfirm && !checked){
+    btn.disabled = true;
+    hint.textContent = "Tick 'Finished on a double' to check out";
+  } else {
+    btn.disabled = false;
+    hint.textContent = '';
+  }
+}
+
+document.getElementById('finish-double-check').addEventListener('change', updateQuickSubmitState);
+
+document.getElementById('quick-submit').addEventListener('click', () => {
+  if (turnEnded) return;
+  const val = parseInt(quickValue, 10) || 0;
+  const player = players[currentPlayerIndex];
+  const remaining = player.score - val;
+  const finishedOnDouble = document.getElementById('finish-double-check').checked;
+
+  let bust = false;
+  if (remaining < 0) bust = true;
+  else if (remaining === 0 && doubleOut && !finishedOnDouble) bust = true;
+  else if (remaining === 1 && doubleOut) bust = true;
+
+  const label = val + ' pts';
+
+  if (bust){
+    player.dartsThrown += 3;
+    player.turns.push({ darts: [label], remaining: player.score, bust: true, win: false });
+    turnEnded = true;
+    setPadEnabled(false);
+    const msg = document.getElementById('turn-message');
+    msg.textContent = `BUST! Stays on ${player.score}`;
+    msg.className = 'turn-message show bust';
+    document.getElementById('next-player-btn').classList.add('show');
+    render();
+    return;
+  }
+
+  if (remaining === 0){
+    player.dartsThrown += 3;
+    player.totalScored += val;
+    player.score = 0;
+    player.turns.push({ darts: [label], remaining: 0, bust: false, win: true });
+    render();
+    setTimeout(() => showWinner(finishedOnDouble ? 'a double to finish' : label), 400);
+    return;
+  }
+
+  player.dartsThrown += 3;
+  player.totalScored += val;
+  player.score = remaining;
+  player.turns.push({ darts: [label], remaining: remaining, bust: false, win: false });
+  turnEnded = true;
+  setPadEnabled(false);
+  const msg = document.getElementById('turn-message');
+  msg.textContent = `Turn total: ${val}`;
+  msg.className = 'turn-message show';
+  document.getElementById('next-player-btn').classList.add('show');
+  render();
+});
+
+// ---------- THROW LOGIC ----------
+function throwDart(value, kind){
+  if (turnEnded) return;
+
+  let points, label;
+  if (kind === 'number'){
+    points = value * selectedMult;
+    label = (selectedMult === 1 ? 'S' : selectedMult === 2 ? 'D' : 'T') + value;
+  } else if (kind === 'bull25'){
+    points = 25; label = '25';
+  } else if (kind === 'bull50'){
+    points = 50; label = 'BULL';
+  } else {
+    points = 0; label = 'MISS';
+  }
+
+  const isDouble = (kind === 'number' && selectedMult === 2) || kind === 'bull50';
+  const scoredSoFar = turnDarts.reduce((s,d) => s + d.points, 0);
+  const remainingBefore = turnStartScore - scoredSoFar;
+  const newRemaining = remainingBefore - points;
+
+  let bust = false;
+  if (newRemaining < 0) bust = true;
+  else if (newRemaining === 0 && doubleOut && !isDouble) bust = true;
+  else if (newRemaining === 1 && doubleOut) bust = true;
+
+  turnDarts.push({label, points, bust});
+
+  if (bust){
+    finishTurn(true, false);
+    return;
+  }
+
+  if (newRemaining === 0){
+    players[currentPlayerIndex].score = 0;
+    players[currentPlayerIndex].dartsThrown += turnDarts.length;
+    players[currentPlayerIndex].totalScored += (turnStartScore - 0);
+    players[currentPlayerIndex].turns.push({
+      darts: turnDarts.map(d => d.label),
+      remaining: 0,
+      bust: false,
+      win: true
+    });
+    render();
+    setTimeout(() => showWinner(turnDarts[turnDarts.length-1].label), 400);
+    return;
+  }
+
+  if (turnDarts.length === 3){
+    finishTurn(false, false);
+    return;
+  }
+
+  render();
+}
+
+function finishTurn(bust, win){
+  turnEnded = true;
+  setPadEnabled(false);
+  const p = players[currentPlayerIndex];
+  const msg = document.getElementById('turn-message');
+
+  if (bust){
+    p.dartsThrown += turnDarts.length;
+    p.turns.push({ darts: turnDarts.map(d => d.label), remaining: turnStartScore, bust: true, win:false });
+    msg.textContent = `BUST! Stays on ${turnStartScore}`;
+    msg.className = 'turn-message show bust';
+  } else {
+    const totalPoints = turnDarts.reduce((s,d) => s + d.points, 0);
+    p.score = turnStartScore - totalPoints;
+    p.dartsThrown += turnDarts.length;
+    p.totalScored += totalPoints;
+    p.turns.push({ darts: turnDarts.map(d => d.label), remaining: p.score, bust:false, win:false });
+    msg.textContent = `Turn total: ${totalPoints}`;
+    msg.className = 'turn-message show';
+  }
+
+  document.getElementById('next-player-btn').classList.add('show');
+  render();
+}
+
+document.getElementById('next-player-btn').addEventListener('click', () => {
+  currentPlayerIndex = (currentPlayerIndex + 1) % players.length;
+  beginTurn();
+});
+
+document.getElementById('undo-btn').addEventListener('click', () => {
+  if (turnEnded || turnDarts.length === 0) return;
+  turnDarts.pop();
+  render();
+});
+
+document.getElementById('restart-btn').addEventListener('click', () => {
+  document.getElementById('restart-confirm-row').classList.add('show');
+});
+document.getElementById('restart-yes').addEventListener('click', () => {
+  document.getElementById('restart-confirm-row').classList.remove('show');
+  resetToSetup();
+});
+document.getElementById('restart-no').addEventListener('click', () => {
+  document.getElementById('restart-confirm-row').classList.remove('show');
+});
+
+// ---------- RENDER ----------
+function render(){
+  const board = document.getElementById('scoreboard');
+  board.innerHTML = '';
+  players.forEach((p, i) => {
+    const card = document.createElement('div');
+    card.className = 'player-card' + (i === currentPlayerIndex ? ' active' : '');
+    const avg = p.dartsThrown > 0 ? (p.totalScored / p.dartsThrown * 3).toFixed(1) : '0.0';
+    card.innerHTML = `<div class="p-name">${escapeHtml(p.name)}</div>
+                       <div class="p-score">${p.score}</div>
+                       <div class="p-avg">avg ${avg}</div>`;
+    board.appendChild(card);
+  });
+
+  const cur = players[currentPlayerIndex];
+  document.getElementById('turn-who').textContent = `${cur.name.toUpperCase()}'S TURN`;
+
+  const scoredSoFar = turnDarts.reduce((s,d) => s + d.points, 0);
+  const liveRemaining = turnEnded ? cur.score : turnStartScore - scoredSoFar;
+  document.getElementById('turn-remaining').textContent = liveRemaining;
+  document.getElementById('turn-sub').textContent = `Turn total: ${scoredSoFar}`;
+
+  for (let i = 0; i < 3; i++){
+    const slot = document.getElementById('dart-slot-' + i);
+    if (turnDarts[i]){
+      slot.textContent = turnDarts[i].label;
+      slot.classList.add('filled');
+    } else {
+      slot.textContent = i + 1;
+      slot.classList.remove('filled');
+    }
+  }
+
+  renderHistory();
+  saveState();
+}
+
+function renderHistory(){
+  const wrap = document.getElementById('history-content');
+  wrap.innerHTML = '';
+  players.forEach(p => {
+    const block = document.createElement('div');
+    block.className = 'hist-player';
+    const h = document.createElement('h4');
+    h.textContent = p.name;
+    block.appendChild(h);
+    const ul = document.createElement('ul');
+    if (p.turns.length === 0){
+      const li = document.createElement('li');
+      li.textContent = 'No turns yet';
+      li.style.opacity = '0.6';
+      ul.appendChild(li);
+    } else {
+      p.turns.forEach((t, idx) => {
+        const li = document.createElement('li');
+        if (t.win){
+          li.textContent = `Turn ${idx+1}: ${t.darts.join(', ')} — CHECKOUT!`;
+        } else if (t.bust){
+          li.className = 'bust';
+          li.textContent = `Turn ${idx+1}: ${t.darts.join(', ')} — BUST, stays ${t.remaining}`;
+        } else {
+          li.textContent = `Turn ${idx+1}: ${t.darts.join(', ')} — ${t.remaining} left`;
+        }
+        ul.appendChild(li);
+      });
+    }
+    block.appendChild(ul);
+    wrap.appendChild(block);
+  });
+}
+
+function escapeHtml(str){
+  const d = document.createElement('div');
+  d.textContent = str;
+  return d.innerHTML;
+}
+
+// ---------- WINNER SCREEN ----------
+function showWinner(finalDart){
+  const p = players[currentPlayerIndex];
+  winnerInfo = { name: p.name, finalDart };
+  renderWinnerScreen(p.name, finalDart);
+}
+
+function renderWinnerScreen(winnerName, finalDart){
+  document.getElementById('winner-name').textContent = `${winnerName.toUpperCase()} WINS!`;
+  document.getElementById('winner-checkout').textContent = `Checked out on ${finalDart}`;
+
+  const table = document.getElementById('stats-table');
+  let rows = `<tr><th>Player</th><th>Darts</th><th>Avg (3-dart)</th></tr>`;
+  players.forEach(pl => {
+    const avg = pl.dartsThrown > 0 ? (pl.totalScored / pl.dartsThrown * 3).toFixed(1) : '0.0';
+    rows += `<tr><td>${escapeHtml(pl.name)}${pl.name === winnerName ? ' 🏆' : ''}</td><td>${pl.dartsThrown}</td><td>${avg}</td></tr>`;
+  });
+  table.innerHTML = rows;
+
+  showScreen('screen-winner');
+}
+
+document.getElementById('new-leg-btn').addEventListener('click', () => {
+  players.forEach(p => { p.score = startScore; p.dartsThrown = 0; p.totalScored = 0; p.turns = []; });
+  currentPlayerIndex = 0;
+  winnerInfo = null;
+  beginTurn();
+  showScreen('screen-game');
+});
+
+document.getElementById('new-match-btn').addEventListener('click', resetToSetup);
+
+function resetToSetup(){
+  players = [];
+  nameSlots = [];
+  nameSlotIndex = 0;
+  currentPlayerIndex = 0;
+  winnerInfo = null;
+  buildSetupScreen();
+  showScreen('screen-setup');
+}
+
+// ---------- INIT ----------
+loadState().then(restored => {
+  if (!restored){
+    buildSetupScreen();
+    showScreen('screen-setup');
+  }
+});
+</script>
+</body>
+</html>
