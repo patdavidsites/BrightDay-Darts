@@ -128,8 +128,8 @@
   .choice-grid.five{grid-template-columns:repeat(5, 1fr);}
   .name-grid{
     display:grid;
-    grid-template-columns:repeat(2, 1fr);
-    gap:10px;
+    grid-template-columns:repeat(3, 1fr);
+    gap:8px;
   }
 
   button{
@@ -188,20 +188,21 @@
   .toggle-line input{width:20px; height:20px; accent-color:var(--green);}
   .toggle-line span{font-size:0.95rem;}
 
-  /* --- Name select screen --- */
+  /* --- Player picker (setup screen) --- */
   .player-progress{
     font-family:'Bebas Neue', sans-serif;
     font-size:1.05rem;
     letter-spacing:0.06em;
     color:var(--brass);
   }
-  .other-input{
+  .custom-name-row{
     display:none;
-    margin-top:4px;
-    grid-column:1 / -1;
+    gap:8px;
+    margin-top:8px;
   }
-  .other-input input{
-    width:100%;
+  .custom-name-row.show{display:flex;}
+  .custom-name-row input{
+    flex:1;
     padding:12px;
     font-family:'Crimson Pro', serif;
     font-size:1rem;
@@ -210,9 +211,85 @@
     background:var(--cream);
     color:var(--ink);
   }
-  .other-input.show{display:block;}
 
-  .taken-list{font-size:0.85rem; color:var(--ink-soft); min-height:1.2em;}
+  .roster-pills{
+    display:flex;
+    flex-wrap:wrap;
+    gap:8px;
+    margin-top:8px;
+    min-height:20px;
+  }
+  .roster-pill{
+    background:var(--green);
+    color:var(--cream);
+    border-radius:20px;
+    padding:6px 8px 6px 14px;
+    display:flex;
+    align-items:center;
+    gap:4px;
+    font-size:0.9rem;
+    font-weight:600;
+  }
+  .roster-pill button{
+    background:none;
+    border:none;
+    color:var(--cream);
+    font-size:1.1rem;
+    line-height:1;
+    cursor:pointer;
+    padding:2px 6px;
+    min-height:auto;
+  }
+
+  .version-badge{
+    display:inline-block;
+    margin-top:3px;
+    font-family:'Bebas Neue', sans-serif;
+    font-size:0.62rem;
+    letter-spacing:0.1em;
+    color:var(--ink);
+    background:var(--brass-light);
+    padding:2px 8px;
+    border-radius:10px;
+  }
+
+  #top-winners-wrap{
+    background:var(--green);
+    border:3px solid var(--brass);
+    border-radius:10px;
+    padding:14px 16px;
+    color:var(--cream);
+  }
+  #top-winners-wrap .section-title{
+    color:var(--cream);
+    border-bottom-color:var(--brass-light);
+    margin-bottom:6px;
+  }
+  .top-winner-row{
+    display:flex;
+    align-items:center;
+    gap:10px;
+    padding:6px 0;
+    font-size:1rem;
+  }
+  .top-winner-row + .top-winner-row{border-top:1px solid rgba(241,230,204,0.15);}
+  .top-winner-medal{
+    font-family:'Bebas Neue', sans-serif;
+    font-size:1.1rem;
+    width:26px;
+    text-align:center;
+  }
+  .top-winner-name{flex:1; font-weight:600;}
+  .top-winner-count{
+    font-family:'Bebas Neue', sans-serif;
+    letter-spacing:0.04em;
+    color:var(--brass-light);
+  }
+  .top-winners-empty{
+    font-size:0.9rem;
+    color:var(--cream-darker);
+    padding:4px 0;
+  }
 
   /* --- Game screen --- */
   .scoreboard{
@@ -313,8 +390,22 @@
   .turn-message.bust{background:var(--red); color:var(--cream);}
   .turn-message.win{background:var(--brass); color:var(--ink);}
 
-  .next-player-btn{display:none; margin-top:12px;}
-  .next-player-btn.show{display:inline-block; width:100%;}
+  .turn-actions{display:flex; gap:8px; margin-top:12px; align-items:stretch;}
+  .next-player-btn{display:none; flex:1;}
+  .next-player-btn.show{display:inline-block;}
+  .undo-ghost{
+    flex:0 0 auto;
+    background:transparent;
+    border:2px solid var(--brass-light);
+    color:var(--cream);
+    font-size:0.9rem;
+    padding:10px 14px;
+    min-height:auto;
+  }
+  .undo-ghost:hover:not(:disabled){background:rgba(241,230,204,0.1);}
+  .undo-ghost:disabled{opacity:0.35; cursor:not-allowed;}
+  .bust-ghost{border-color:var(--red);}
+  .bust-ghost:hover:not(:disabled){background:rgba(156,43,34,0.25);}
 
   .mode-row{display:flex; gap:8px;}
   .mode-row button{flex:1; font-family:'Bebas Neue', sans-serif; letter-spacing:0.05em; font-size:0.95rem;}
@@ -465,6 +556,7 @@
   <div class="header-stack">
     <h1><span class="dart-emoji">🎯</span> BIG BRIGHTDAY ENERGY</h1>
     <span class="tagline">DARTS SCOREBOARD</span>
+    <span class="version-badge">v2.0</span>
   </div>
 </header>
 
@@ -472,9 +564,9 @@
 
   <!-- SCREEN 1: SETUP -->
   <section class="screen active" id="screen-setup">
-    <div>
-      <h2 class="section-title">How many players?</h2>
-      <div class="choice-grid five" id="player-count-grid"></div>
+    <div id="top-winners-wrap">
+      <h2 class="section-title">🏆 Top Winners</h2>
+      <div id="top-winners-list"></div>
     </div>
 
     <div>
@@ -487,20 +579,37 @@
       <span>Finish on a double (standard rules)</span>
     </label>
 
-    <button class="primary" id="setup-continue">Choose players →</button>
+    <div>
+      <h2 class="section-title">Who's playing?</h2>
+      <p class="hint">Tap everyone playing, then start the game.</p>
+      <div class="name-grid" id="player-select-grid"></div>
+      <button class="ghost small" id="add-custom-btn" style="margin-top:8px; width:100%;">+ Add a custom name</button>
+      <div class="custom-name-row" id="custom-name-row">
+        <input type="text" id="custom-name-input" placeholder="Type a name…" maxlength="16">
+        <button class="primary small" id="custom-name-add">Add</button>
+      </div>
+    </div>
+
+    <div id="roster-wrap">
+      <span class="player-progress">PLAYERS (<span id="roster-count">0</span>)</span>
+      <div class="roster-pills" id="roster-pills"></div>
+    </div>
+
+    <button class="primary" id="setup-continue" disabled>Start game →</button>
+    <button class="ghost" id="leaderboard-btn">🏆 View leaderboard</button>
   </section>
 
-  <!-- SCREEN 2: NAMES -->
-  <section class="screen" id="screen-names">
-    <div>
-      <span class="player-progress" id="player-progress">PLAYER 1 OF 2</span>
-      <h2 class="section-title" style="border:none; padding-bottom:0; margin-top:4px;">Who's throwing?</h2>
+  <!-- SCREEN 2: LEADERBOARD -->
+  <section class="screen" id="screen-leaderboard">
+    <div class="top-bar">
+      <span class="player-progress">🏆 LEADERBOARD</span>
+      <button class="ghost small" id="leaderboard-back">← Back</button>
     </div>
-    <div class="name-grid" id="name-grid"></div>
-    <div class="taken-list" id="taken-list"></div>
-    <div class="row">
-      <button class="ghost" id="names-back">← Back</button>
-      <button class="primary" id="names-next" disabled>Next →</button>
+    <div id="leaderboard-content"></div>
+    <button class="ghost small" id="leaderboard-reset">Reset all stats</button>
+    <div class="row confirm-row" id="lb-reset-confirm-row">
+      <button class="primary small" id="lb-reset-yes">Yes, reset stats</button>
+      <button class="ghost small" id="lb-reset-no">Cancel</button>
     </div>
   </section>
 
@@ -527,7 +636,11 @@
         <div class="dart-slot" id="dart-slot-2">3</div>
       </div>
       <div class="turn-message" id="turn-message"></div>
-      <button class="primary next-player-btn" id="next-player-btn">Next player →</button>
+      <div class="turn-actions">
+        <button class="undo-ghost" id="undo-btn" disabled>↩ Undo</button>
+        <button class="undo-ghost bust-ghost" id="bust-btn">Bust →</button>
+        <button class="primary next-player-btn" id="next-player-btn">Next player →</button>
+      </div>
     </div>
 
     <div class="mode-row" id="mode-row">
@@ -543,10 +656,6 @@
       </div>
 
       <div class="pad" id="number-pad"></div>
-
-      <div class="undo-row">
-        <button class="ghost" id="undo-btn">↩ Undo last dart</button>
-      </div>
     </div>
 
     <div id="quick-panel" class="hidden-panel">
@@ -579,6 +688,7 @@
       <button class="primary" id="new-leg-btn">Rematch, same players</button>
     </div>
     <button class="ghost" id="new-match-btn">Start over with new players</button>
+    <button class="ghost" id="winner-leaderboard-btn">🏆 View leaderboard</button>
   </section>
 
 </main>
@@ -588,9 +698,8 @@
 </div>
 
 <script>
-const NAME_OPTIONS = ["Taylor","Max","Michael","Nathan","Anders","Chanelle","Rose","Pat","Caillin","Other"];
+const NAME_OPTIONS = ["Taylor","Max","Michael","Nathan","Andrew","Anders","Chanelle","Rose","Pat","Caillin","Tom"];
 
-let numPlayers = 2;
 let startScore = 501;
 let doubleOut = true;
 
@@ -599,45 +708,68 @@ let currentPlayerIndex = 0;
 let turnDarts = [];      // {label, points}
 let turnStartScore = 0;
 let turnEnded = false;
+let pendingOutcome = null;   // null | 'bust' | 'win' | 'normal' — the outcome awaiting confirmation
 let selectedMult = 1;
 let entryMode = 'dart';   // 'dart' or 'quick'
 let quickValue = '0';
 const QUICK_CHIPS = [26,41,45,60,81,85,96,100,140,180];
 
-let nameSlots = [];       // chosen name per slot, index = player number
-let nameSlotIndex = 0;
-let pendingOther = "";
-let winnerInfo = null;    // {name, finalDart}
+let selectedPlayers = [];  // ordered list of names chosen on the setup screen
+let winnerInfo = null;     // {name, finalDart}
 let currentScreenId = 'screen-setup';
 const SAVE_KEY = 'darts-oche-state';
+const LB_KEY = 'darts-oche-leaderboard';
+let leaderboard = {};      // { name: {wins, doubles, triples, bullseyes} }
 
-// ---------- SAVE / LOAD ----------
+// ---------- STORAGE HELPER ----------
+// Prefer Claude's artifact storage (window.storage) when this runs inside a
+// Claude preview. When the file is downloaded and opened directly in a
+// regular browser, that API doesn't exist, so fall back to localStorage —
+// this is what makes saving work in actual real-world use at the pub.
+const hasArtifactStorage = (typeof window !== 'undefined' &&
+    window.storage && typeof window.storage.get === 'function' && typeof window.storage.set === 'function');
+
+async function storageGet(key){
+  if (hasArtifactStorage){
+    try{ return await window.storage.get(key); }catch(e){ return null; }
+  }
+  try{
+    const raw = localStorage.getItem(key);
+    return raw !== null ? { value: raw } : null;
+  }catch(e){ return null; }
+}
+
+function storageSet(key, value){
+  if (hasArtifactStorage){
+    try{ window.storage.set(key, value, false).catch(() => {}); }catch(e){ /* ignore */ }
+    return;
+  }
+  try{ localStorage.setItem(key, value); }catch(e){ /* ignore — storage unavailable */ }
+}
+
+// ---------- SAVE / LOAD (current game) ----------
 function saveState(){
   const snapshot = {
     screen: currentScreenId,
-    numPlayers, startScore, doubleOut,
-    nameSlots, nameSlotIndex,
+    startScore, doubleOut,
+    selectedPlayers,
     players, currentPlayerIndex,
     entryMode, winnerInfo
   };
-  try{
-    window.storage.set(SAVE_KEY, JSON.stringify(snapshot), false).catch(() => {});
-  }catch(e){ /* storage unavailable — game still works, just won't persist */ }
+  storageSet(SAVE_KEY, JSON.stringify(snapshot));
 }
 
 async function loadState(){
   let s = null;
   try{
-    const result = await window.storage.get(SAVE_KEY);
+    const result = await storageGet(SAVE_KEY);
     if (result && result.value) s = JSON.parse(result.value);
   }catch(e){ s = null; }
   if (!s) return false;
 
-  numPlayers = s.numPlayers || 2;
   startScore = s.startScore || 501;
   doubleOut = s.doubleOut !== false;
-  nameSlots = s.nameSlots || [];
-  nameSlotIndex = s.nameSlotIndex || 0;
+  selectedPlayers = s.selectedPlayers || [];
   players = s.players || [];
   currentPlayerIndex = s.currentPlayerIndex || 0;
   entryMode = s.entryMode || 'dart';
@@ -663,14 +795,135 @@ async function loadState(){
     buildNumberPad();
     buildQuickPanel();
     renderWinnerScreen(winnerInfo.name, winnerInfo.finalDart);
-  } else if (s.screen === 'screen-names' && numPlayers){
-    showScreen('screen-names');
-    buildNameScreen();
   } else {
     showScreen('screen-setup');
   }
   return true;
 }
+
+// ---------- LEADERBOARD (persists across games) ----------
+async function loadLeaderboard(){
+  try{
+    const result = await storageGet(LB_KEY);
+    if (result && result.value) leaderboard = JSON.parse(result.value);
+  }catch(e){ leaderboard = {}; }
+}
+function saveLeaderboard(){
+  storageSet(LB_KEY, JSON.stringify(leaderboard));
+}
+function ensureLbEntry(name){
+  if (!leaderboard[name]) leaderboard[name] = { wins: 0, doubles: 0, triples: 0, bullseyes: 0 };
+  return leaderboard[name];
+}
+function recordDartStats(name, dartLabels){
+  const entry = ensureLbEntry(name);
+  dartLabels.forEach(label => {
+    if (/^D\d+$/.test(label)) entry.doubles++;
+    else if (/^T\d+$/.test(label)) entry.triples++;
+    else if (label === 'BULL') entry.bullseyes++;
+  });
+  saveLeaderboard();
+}
+function recordWin(name){
+  ensureLbEntry(name).wins++;
+  saveLeaderboard();
+}
+
+function renderTopWinners(){
+  const wrap = document.getElementById('top-winners-list');
+  if (!wrap) return;
+  const top = Object.keys(leaderboard)
+      .map(n => ({ name: n, wins: leaderboard[n].wins || 0 }))
+      .filter(e => e.wins > 0)
+      .sort((a,b) => b.wins - a.wins)
+      .slice(0,3);
+
+  if (top.length === 0){
+    wrap.innerHTML = '<p class="top-winners-empty">No games recorded yet — play a leg to get on the board.</p>';
+    return;
+  }
+  const medals = ['🥇','🥈','🥉'];
+  wrap.innerHTML = '';
+  top.forEach((e, i) => {
+    const row = document.createElement('div');
+    row.className = 'top-winner-row';
+    row.innerHTML = `<span class="top-winner-medal">${medals[i]}</span>
+                      <span class="top-winner-name">${escapeHtml(e.name)}</span>
+                      <span class="top-winner-count">${e.wins} win${e.wins === 1 ? '' : 's'}</span>`;
+    wrap.appendChild(row);
+  });
+}
+
+function renderLeaderboard(){
+  const wrap = document.getElementById('leaderboard-content');
+  wrap.innerHTML = '';
+  const names = Object.keys(leaderboard);
+  if (names.length === 0){
+    wrap.innerHTML = '<p class="hint">No games recorded yet — play a leg to start the leaderboard.</p>';
+    return;
+  }
+  const categories = [
+    { key: 'wins', label: 'Most Wins', icon: '🏆' },
+    { key: 'doubles', label: 'Most Doubles', icon: '🎯' },
+    { key: 'triples', label: 'Most Triples', icon: '🎯' },
+    { key: 'bullseyes', label: 'Most Bullseyes', icon: '🔴' }
+  ];
+  categories.forEach(cat => {
+    const sorted = names
+        .map(n => ({ name: n, value: leaderboard[n][cat.key] || 0 }))
+        .filter(e => e.value > 0)
+        .sort((a,b) => b.value - a.value)
+        .slice(0,5);
+    const block = document.createElement('div');
+    block.className = 'hist-player';
+    const h = document.createElement('h4');
+    h.textContent = `${cat.icon} ${cat.label}`;
+    block.appendChild(h);
+    const ul = document.createElement('ul');
+    if (sorted.length === 0){
+      const li = document.createElement('li');
+      li.style.opacity = '0.6';
+      li.textContent = 'No data yet';
+      ul.appendChild(li);
+    } else {
+      sorted.forEach((e, i) => {
+        const li = document.createElement('li');
+        li.textContent = `${i+1}. ${e.name} — ${e.value}`;
+        ul.appendChild(li);
+      });
+    }
+    block.appendChild(ul);
+    wrap.appendChild(block);
+  });
+}
+
+let leaderboardReturnScreen = 'screen-setup';
+document.getElementById('leaderboard-btn').addEventListener('click', () => {
+  leaderboardReturnScreen = 'screen-setup';
+  renderLeaderboard();
+  showScreen('screen-leaderboard');
+});
+document.getElementById('winner-leaderboard-btn').addEventListener('click', () => {
+  leaderboardReturnScreen = 'screen-winner';
+  renderLeaderboard();
+  showScreen('screen-leaderboard');
+});
+document.getElementById('leaderboard-back').addEventListener('click', () => {
+  showScreen(leaderboardReturnScreen);
+});
+document.getElementById('leaderboard-reset').addEventListener('click', () => {
+  document.getElementById('lb-reset-confirm-row').classList.add('show');
+});
+document.getElementById('lb-reset-yes').addEventListener('click', () => {
+  document.getElementById('lb-reset-confirm-row').classList.remove('show');
+  leaderboard = {};
+  saveLeaderboard();
+  renderLeaderboard();
+  renderTopWinners();
+});
+document.getElementById('lb-reset-no').addEventListener('click', () => {
+  document.getElementById('lb-reset-confirm-row').classList.remove('show');
+});
 
 // ---------- SCREEN SWITCHING ----------
 function showScreen(id){
@@ -681,18 +934,8 @@ function showScreen(id){
   saveState();
 }
 
-// ---------- SETUP SCREEN ----------
+// ---------- SETUP SCREEN (starting score + player picker, all on one page) ----------
 function buildSetupScreen(){
-  const pcGrid = document.getElementById('player-count-grid');
-  pcGrid.innerHTML = '';
-  [2,3,4,5,6].forEach(n => {
-    const b = document.createElement('button');
-    b.textContent = n;
-    b.className = n === numPlayers ? 'selected' : '';
-    b.addEventListener('click', () => { numPlayers = n; buildSetupScreen(); saveState(); });
-    pcGrid.appendChild(b);
-  });
-
   const ssGrid = document.getElementById('start-score-grid');
   ssGrid.innerHTML = '';
   [301,501,701].forEach(n => {
@@ -702,114 +945,85 @@ function buildSetupScreen(){
     b.addEventListener('click', () => { startScore = n; buildSetupScreen(); saveState(); });
     ssGrid.appendChild(b);
   });
+
+  const pGrid = document.getElementById('player-select-grid');
+  pGrid.innerHTML = '';
+  NAME_OPTIONS.forEach(name => {
+    const b = document.createElement('button');
+    b.textContent = name;
+    if (selectedPlayers.includes(name)) b.classList.add('selected');
+    b.addEventListener('click', () => {
+      const idx = selectedPlayers.indexOf(name);
+      if (idx >= 0) selectedPlayers.splice(idx, 1);
+      else selectedPlayers.push(name);
+      buildSetupScreen();
+      saveState();
+    });
+    pGrid.appendChild(b);
+  });
+
+  renderRoster();
+  renderTopWinners();
 }
+
+function renderRoster(){
+  const wrap = document.getElementById('roster-pills');
+  wrap.innerHTML = '';
+  selectedPlayers.forEach((name, i) => {
+    const pill = document.createElement('div');
+    pill.className = 'roster-pill';
+    const span = document.createElement('span');
+    span.textContent = name;
+    pill.appendChild(span);
+    const rm = document.createElement('button');
+    rm.textContent = '×';
+    rm.setAttribute('aria-label', `Remove ${name}`);
+    rm.addEventListener('click', () => {
+      selectedPlayers.splice(i, 1);
+      buildSetupScreen();
+      saveState();
+    });
+    pill.appendChild(rm);
+    wrap.appendChild(pill);
+  });
+  document.getElementById('roster-count').textContent = selectedPlayers.length;
+  document.getElementById('setup-continue').disabled = selectedPlayers.length === 0;
+}
+
 document.getElementById('double-out-toggle').addEventListener('change', e => {
   doubleOut = e.target.checked;
   saveState();
 });
-document.getElementById('setup-continue').addEventListener('click', () => {
-  nameSlots = new Array(numPlayers).fill(null);
-  nameSlotIndex = 0;
-  showScreen('screen-names');
-  buildNameScreen();
+
+document.getElementById('add-custom-btn').addEventListener('click', () => {
+  const row = document.getElementById('custom-name-row');
+  row.classList.toggle('show');
+  if (row.classList.contains('show')) document.getElementById('custom-name-input').focus();
 });
 
-// ---------- NAME SELECT SCREEN ----------
-function buildNameScreen(){
-  document.getElementById('player-progress').textContent = `PLAYER ${nameSlotIndex+1} OF ${numPlayers}`;
-  const grid = document.getElementById('name-grid');
-  grid.innerHTML = '';
-  pendingOther = (nameSlots[nameSlotIndex] && nameSlots[nameSlotIndex].startsWith('__OTHER__'))
-      ? nameSlots[nameSlotIndex].slice(9) : '';
-
-  const takenElsewhere = nameSlots
-      .filter((n,i) => i !== nameSlotIndex && n && n !== 'Other' && !n.startsWith('__OTHER__'));
-
-  NAME_OPTIONS.forEach(name => {
-    const b = document.createElement('button');
-    b.textContent = name;
-    const isCurrentSelection = nameSlots[nameSlotIndex] === name ||
-        (name === 'Other' && nameSlots[nameSlotIndex] && nameSlots[nameSlotIndex].startsWith('__OTHER__'));
-    if (isCurrentSelection) b.classList.add('selected');
-    if (name !== 'Other' && takenElsewhere.includes(name)){
-      b.disabled = true;
-      b.style.opacity = '0.4';
-    }
-    b.addEventListener('click', () => {
-      if (name === 'Other'){
-        nameSlots[nameSlotIndex] = '__OTHER__' + pendingOther;
-        buildNameScreen();
-        document.getElementById('other-name-input').focus();
-      } else {
-        nameSlots[nameSlotIndex] = name;
-        buildNameScreen();
-      }
-      saveState();
-    });
-    grid.appendChild(b);
-  });
-
-  const otherWrap = document.createElement('div');
-  otherWrap.className = 'other-input' + (nameSlots[nameSlotIndex] && nameSlots[nameSlotIndex].startsWith('__OTHER__') ? ' show' : '');
-  otherWrap.innerHTML = `<input type="text" id="other-name-input" placeholder="Type a name…" maxlength="16" value="${pendingOther.replace(/"/g,'&quot;')}">`;
-  grid.appendChild(otherWrap);
-  const otherInput = document.getElementById('other-name-input');
-  if (otherInput){
-    otherInput.addEventListener('input', e => {
-      nameSlots[nameSlotIndex] = '__OTHER__' + e.target.value.trim();
-      updateNextButton();
-      updateTakenList();
-      saveState();
-    });
-  }
-
-  updateTakenList();
-  updateNextButton();
-
-  document.getElementById('names-back').disabled = nameSlotIndex === 0;
-  document.getElementById('names-back').style.visibility = nameSlotIndex === 0 ? 'hidden' : 'visible';
-}
-
-function resolvedName(slotValue){
-  if (!slotValue) return '';
-  if (slotValue.startsWith('__OTHER__')) return slotValue.slice(9).trim();
-  return slotValue;
-}
-
-function updateTakenList(){
-  const chosen = nameSlots.map(resolvedName).filter(Boolean);
-  document.getElementById('taken-list').textContent = chosen.length
-      ? 'So far: ' + chosen.join(', ')
-      : '';
-}
-
-function updateNextButton(){
-  const val = resolvedName(nameSlots[nameSlotIndex]);
-  document.getElementById('names-next').disabled = !val;
-  document.getElementById('names-next').textContent = (nameSlotIndex === numPlayers - 1) ? 'Start the game →' : 'Next →';
-}
-
-document.getElementById('names-back').addEventListener('click', () => {
-  if (nameSlotIndex === 0) return;
-  nameSlotIndex--;
-  buildNameScreen();
+function addCustomName(){
+  const input = document.getElementById('custom-name-input');
+  const val = input.value.trim();
+  if (!val) return;
+  selectedPlayers.push(val);
+  input.value = '';
+  buildSetupScreen();
   saveState();
+}
+document.getElementById('custom-name-add').addEventListener('click', addCustomName);
+document.getElementById('custom-name-input').addEventListener('keydown', e => {
+  if (e.key === 'Enter'){ e.preventDefault(); addCustomName(); }
 });
-document.getElementById('names-next').addEventListener('click', () => {
-  if (!resolvedName(nameSlots[nameSlotIndex])) return;
-  if (nameSlotIndex < numPlayers - 1){
-    nameSlotIndex++;
-    buildNameScreen();
-    saveState();
-  } else {
-    startGame();
-  }
+
+document.getElementById('setup-continue').addEventListener('click', () => {
+  if (selectedPlayers.length === 0) return;
+  startGame();
 });
 
 // ---------- GAME SETUP ----------
 function startGame(){
-  players = nameSlots.map(slot => ({
-    name: resolvedName(slot) || 'Player',
+  players = selectedPlayers.map(name => ({
+    name: name,
     score: startScore,
     dartsThrown: 0,
     totalScored: 0,
@@ -828,6 +1042,7 @@ function beginTurn(){
   turnDarts = [];
   turnStartScore = players[currentPlayerIndex].score;
   turnEnded = false;
+  pendingOutcome = null;
   selectedMult = 1;
   quickValue = '0';
   document.querySelectorAll('#mult-row button').forEach(b => {
@@ -839,6 +1054,8 @@ function beginTurn(){
   document.getElementById('turn-message').textContent = '';
   document.getElementById('next-player-btn').classList.remove('show');
   setPadEnabled(true);
+  updateUndoButtonState();
+  document.getElementById('bust-btn').disabled = false;
   updateQuickDisplay();
   render();
 }
@@ -881,7 +1098,7 @@ document.querySelectorAll('#mult-row button').forEach(b => {
 });
 
 function setPadEnabled(enabled){
-  document.querySelectorAll('#number-pad button, #mult-row button, #undo-btn').forEach(b => {
+  document.querySelectorAll('#number-pad button, #mult-row button').forEach(b => {
     b.disabled = !enabled;
   });
   document.querySelectorAll('#quick-chips button, #quick-keypad button').forEach(b => {
@@ -889,6 +1106,10 @@ function setPadEnabled(enabled){
   });
   document.getElementById('finish-double-check').disabled = !enabled;
   updateQuickSubmitState();
+}
+
+function updateUndoButtonState(){
+  document.getElementById('undo-btn').disabled = turnDarts.length === 0;
 }
 
 // ---------- MODE TOGGLE ----------
@@ -902,7 +1123,15 @@ document.querySelectorAll('#mode-row button').forEach(b => {
     document.getElementById('dart-slots-wrap').style.display = entryMode === 'dart' ? 'flex' : 'none';
     // switching mode mid-visit clears any unentered progress for this turn
     turnDarts = [];
+    pendingOutcome = null;
+    turnEnded = false;
     quickValue = '0';
+    document.getElementById('turn-message').className = 'turn-message';
+    document.getElementById('turn-message').textContent = '';
+    document.getElementById('next-player-btn').classList.remove('show');
+    setPadEnabled(true);
+    updateUndoButtonState();
+    document.getElementById('bust-btn').disabled = false;
     render();
     updateQuickDisplay();
   });
@@ -985,51 +1214,9 @@ document.getElementById('finish-double-check').addEventListener('change', update
 document.getElementById('quick-submit').addEventListener('click', () => {
   if (turnEnded) return;
   const val = parseInt(quickValue, 10) || 0;
-  const player = players[currentPlayerIndex];
-  const remaining = player.score - val;
   const finishedOnDouble = document.getElementById('finish-double-check').checked;
-
-  let bust = false;
-  if (remaining < 0) bust = true;
-  else if (remaining === 0 && doubleOut && !finishedOnDouble) bust = true;
-  else if (remaining === 1 && doubleOut) bust = true;
-
-  const label = val + ' pts';
-
-  if (bust){
-    player.dartsThrown += 3;
-    player.turns.push({ darts: [label], remaining: player.score, bust: true, win: false });
-    turnEnded = true;
-    setPadEnabled(false);
-    const msg = document.getElementById('turn-message');
-    msg.textContent = `BUST! Stays on ${player.score}`;
-    msg.className = 'turn-message show bust';
-    document.getElementById('next-player-btn').classList.add('show');
-    render();
-    return;
-  }
-
-  if (remaining === 0){
-    player.dartsThrown += 3;
-    player.totalScored += val;
-    player.score = 0;
-    player.turns.push({ darts: [label], remaining: 0, bust: false, win: true });
-    render();
-    setTimeout(() => showWinner(finishedOnDouble ? 'a double to finish' : label), 400);
-    return;
-  }
-
-  player.dartsThrown += 3;
-  player.totalScored += val;
-  player.score = remaining;
-  player.turns.push({ darts: [label], remaining: remaining, bust: false, win: false });
-  turnEnded = true;
-  setPadEnabled(false);
-  const msg = document.getElementById('turn-message');
-  msg.textContent = `Turn total: ${val}`;
-  msg.className = 'turn-message show';
-  document.getElementById('next-player-btn').classList.add('show');
-  render();
+  turnDarts = [{ label: val + ' pts', points: val, isDouble: finishedOnDouble }];
+  evaluateTurnState();
 });
 
 // ---------- THROW LOGIC ----------
@@ -1049,79 +1236,127 @@ function throwDart(value, kind){
   }
 
   const isDouble = (kind === 'number' && selectedMult === 2) || kind === 'bull50';
+  turnDarts.push({label, points, isDouble});
+  evaluateTurnState();
+}
+
+// Evaluate the current (uncommitted) visit and decide whether it's still in
+// progress, or has reached a bust/win/normal-end state awaiting confirmation.
+// Nothing is written to the player's score/history until commitCurrentTurn()
+// runs — this is what lets Undo correct the last dart at any point, including
+// right after the 3rd dart or a bust/checkout.
+function evaluateTurnState(){
   const scoredSoFar = turnDarts.reduce((s,d) => s + d.points, 0);
-  const remainingBefore = turnStartScore - scoredSoFar;
-  const newRemaining = remainingBefore - points;
+  const remaining = turnStartScore - scoredSoFar;
+  const lastDart = turnDarts[turnDarts.length - 1];
 
-  let bust = false;
-  if (newRemaining < 0) bust = true;
-  else if (newRemaining === 0 && doubleOut && !isDouble) bust = true;
-  else if (newRemaining === 1 && doubleOut) bust = true;
-
-  turnDarts.push({label, points, bust});
-
-  if (bust){
-    finishTurn(true, false);
-    return;
+  let outcome = null;
+  if (remaining < 0){
+    outcome = 'bust';
+  } else if (remaining === 0){
+    outcome = (doubleOut && lastDart && !lastDart.isDouble) ? 'bust' : 'win';
+  } else if (remaining === 1 && doubleOut){
+    outcome = 'bust';
+  } else if (turnDarts.length >= 3 || entryMode === 'quick'){
+    outcome = 'normal';
   }
 
-  if (newRemaining === 0){
-    players[currentPlayerIndex].score = 0;
-    players[currentPlayerIndex].dartsThrown += turnDarts.length;
-    players[currentPlayerIndex].totalScored += (turnStartScore - 0);
-    players[currentPlayerIndex].turns.push({
-      darts: turnDarts.map(d => d.label),
-      remaining: 0,
-      bust: false,
-      win: true
-    });
-    render();
-    setTimeout(() => showWinner(turnDarts[turnDarts.length-1].label), 400);
-    return;
-  }
+  pendingOutcome = outcome;
+  const msg = document.getElementById('turn-message');
+  const nextBtn = document.getElementById('next-player-btn');
 
-  if (turnDarts.length === 3){
-    finishTurn(false, false);
-    return;
+  if (outcome){
+    turnEnded = true;
+    setPadEnabled(false);
+    if (outcome === 'bust'){
+      msg.textContent = `BUST! Stays on ${turnStartScore}`;
+      msg.className = 'turn-message show bust';
+      nextBtn.textContent = 'Next player →';
+    } else if (outcome === 'win'){
+      msg.textContent = `Checkout! ${scoredSoFar} scored`;
+      msg.className = 'turn-message show win';
+      nextBtn.textContent = 'See results →';
+    } else {
+      msg.textContent = `Turn total: ${scoredSoFar}`;
+      msg.className = 'turn-message show';
+      nextBtn.textContent = 'Next player →';
+    }
+    nextBtn.classList.add('show');
+  } else {
+    turnEnded = false;
+    msg.className = 'turn-message';
+    msg.textContent = '';
+    nextBtn.classList.remove('show');
   }
-
+  updateUndoButtonState();
+  document.getElementById('bust-btn').disabled = (outcome === 'win');
   render();
 }
 
-function finishTurn(bust, win){
-  turnEnded = true;
-  setPadEnabled(false);
+function commitCurrentTurn(){
   const p = players[currentPlayerIndex];
-  const msg = document.getElementById('turn-message');
+  const scoredSoFar = turnDarts.reduce((s,d) => s + d.points, 0);
+  const dartLabels = turnDarts.map(d => d.label);
+  recordDartStats(p.name, dartLabels);
 
-  if (bust){
+  if (pendingOutcome === 'bust'){
     p.dartsThrown += turnDarts.length;
-    p.turns.push({ darts: turnDarts.map(d => d.label), remaining: turnStartScore, bust: true, win:false });
-    msg.textContent = `BUST! Stays on ${turnStartScore}`;
-    msg.className = 'turn-message show bust';
-  } else {
-    const totalPoints = turnDarts.reduce((s,d) => s + d.points, 0);
-    p.score = turnStartScore - totalPoints;
+    p.turns.push({ darts: dartLabels, remaining: turnStartScore, bust: true, win: false });
+    currentPlayerIndex = (currentPlayerIndex + 1) % players.length;
+    beginTurn();
+  } else if (pendingOutcome === 'win'){
+    p.score = 0;
     p.dartsThrown += turnDarts.length;
-    p.totalScored += totalPoints;
-    p.turns.push({ darts: turnDarts.map(d => d.label), remaining: p.score, bust:false, win:false });
-    msg.textContent = `Turn total: ${totalPoints}`;
-    msg.className = 'turn-message show';
+    p.totalScored += scoredSoFar;
+    p.turns.push({ darts: dartLabels, remaining: 0, bust: false, win: true });
+    recordWin(p.name);
+    const finalLabel = dartLabels[dartLabels.length - 1];
+    render();
+    showWinner(finalLabel);
+  } else if (pendingOutcome === 'normal'){
+    p.score = turnStartScore - scoredSoFar;
+    p.dartsThrown += turnDarts.length;
+    p.totalScored += scoredSoFar;
+    p.turns.push({ darts: dartLabels, remaining: p.score, bust: false, win: false });
+    currentPlayerIndex = (currentPlayerIndex + 1) % players.length;
+    beginTurn();
   }
-
-  document.getElementById('next-player-btn').classList.add('show');
-  render();
 }
 
 document.getElementById('next-player-btn').addEventListener('click', () => {
-  currentPlayerIndex = (currentPlayerIndex + 1) % players.length;
-  beginTurn();
+  commitCurrentTurn();
 });
 
 document.getElementById('undo-btn').addEventListener('click', () => {
-  if (turnEnded || turnDarts.length === 0) return;
+  if (turnDarts.length === 0) return;
   turnDarts.pop();
+  pendingOutcome = null;
+  turnEnded = false;
+  document.getElementById('turn-message').className = 'turn-message';
+  document.getElementById('turn-message').textContent = '';
+  document.getElementById('next-player-btn').classList.remove('show');
+  setPadEnabled(true);
+  if (entryMode === 'quick'){
+    quickValue = '0';
+    document.getElementById('finish-double-check').checked = false;
+    updateQuickDisplay();
+  }
+  updateUndoButtonState();
   render();
+});
+
+// Manual override — mark the visit a bust and skip straight to the next
+// player, whatever's been entered so far (or nothing at all).
+document.getElementById('bust-btn').addEventListener('click', () => {
+  if (pendingOutcome === 'win') return; // don't let a stray tap cancel a checkout
+  const p = players[currentPlayerIndex];
+  const dartLabels = turnDarts.map(d => d.label);
+  if (dartLabels.length) recordDartStats(p.name, dartLabels);
+  const dartsCount = turnDarts.length > 0 ? turnDarts.length : 3;
+  p.dartsThrown += dartsCount;
+  p.turns.push({ darts: dartLabels.length ? dartLabels : ['BUST'], remaining: turnStartScore, bust: true, win: false });
+  currentPlayerIndex = (currentPlayerIndex + 1) % players.length;
+  beginTurn();
 });
 
 document.getElementById('restart-btn').addEventListener('click', () => {
@@ -1153,7 +1388,7 @@ function render(){
   document.getElementById('turn-who').textContent = `${cur.name.toUpperCase()}'S TURN`;
 
   const scoredSoFar = turnDarts.reduce((s,d) => s + d.points, 0);
-  const liveRemaining = turnEnded ? cur.score : turnStartScore - scoredSoFar;
+  const liveRemaining = pendingOutcome === 'bust' ? turnStartScore : turnStartScore - scoredSoFar;
   document.getElementById('turn-remaining').textContent = liveRemaining;
   document.getElementById('turn-sub').textContent = `Turn total: ${scoredSoFar}`;
 
@@ -1246,8 +1481,7 @@ document.getElementById('new-match-btn').addEventListener('click', resetToSetup)
 
 function resetToSetup(){
   players = [];
-  nameSlots = [];
-  nameSlotIndex = 0;
+  selectedPlayers = [];
   currentPlayerIndex = 0;
   winnerInfo = null;
   buildSetupScreen();
@@ -1255,12 +1489,14 @@ function resetToSetup(){
 }
 
 // ---------- INIT ----------
-loadState().then(restored => {
+(async () => {
+  await loadLeaderboard();
+  const restored = await loadState();
   if (!restored){
     buildSetupScreen();
     showScreen('screen-setup');
   }
-});
+})();
 </script>
 </body>
 </html>
