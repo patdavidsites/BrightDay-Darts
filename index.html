@@ -222,13 +222,24 @@
   .roster-pill{
     background:var(--green);
     color:var(--cream);
-    border-radius:20px;
+    border-radius:14px;
     padding:6px 8px 6px 14px;
     display:flex;
     align-items:center;
     gap:4px;
     font-size:0.9rem;
     font-weight:600;
+  }
+  .roster-pill-info{
+    display:flex;
+    flex-direction:column;
+    line-height:1.2;
+  }
+  .roster-pill-nickname{
+    font-size:0.62rem;
+    font-weight:500;
+    font-style:italic;
+    opacity:0.85;
   }
   .roster-pill button{
     background:none;
@@ -239,6 +250,34 @@
     cursor:pointer;
     padding:2px 6px;
     min-height:auto;
+  }
+
+  .nickname-tag{
+    font-family:'Crimson Pro', serif;
+    font-style:italic;
+    font-size:0.7rem;
+    font-weight:500;
+    opacity:0.8;
+    margin-top:1px;
+  }
+
+  .nickname-board-row{
+    display:flex;
+    align-items:flex-start;
+    gap:10px;
+    padding:8px 0;
+    border-bottom:1px solid var(--brass);
+  }
+  .nickname-board-row:last-child{border-bottom:none;}
+  .nickname-board-icon{font-size:1.3rem; line-height:1.2;}
+  .nickname-board-info{flex:1; font-size:0.88rem; line-height:1.3;}
+  .nickname-board-reason{color:var(--ink-soft); font-size:0.78rem;}
+  .nickname-board-holder{
+    font-family:'Bebas Neue', sans-serif;
+    letter-spacing:0.04em;
+    font-size:1rem;
+    color:var(--red);
+    white-space:nowrap;
   }
 
   .version-badge{
@@ -289,6 +328,91 @@
     font-size:0.9rem;
     color:var(--cream-darker);
     padding:4px 0;
+  }
+
+
+  /* ---------- FX: animations + banter banners ---------- */
+  #fx-layer{position:fixed; inset:0; pointer-events:none; overflow:hidden; z-index:999;}
+  .fx-confetti{
+    position:absolute; top:-16px; width:9px; height:15px; border-radius:2px;
+    animation:fx-fall var(--dur,3s) linear forwards;
+  }
+  @keyframes fx-fall{
+    0%{transform:translate3d(0,0,0) rotate(0deg); opacity:1;}
+    100%{transform:translate3d(var(--dx,0px),112vh,0) rotate(var(--rot,600deg)); opacity:1;}
+  }
+  .fx-flash{
+    position:absolute; inset:0;
+    background:radial-gradient(circle at 50% 42%, var(--fxc,rgba(255,205,90,0.8)), transparent 68%);
+    animation:fx-flash 0.95s ease-out forwards;
+  }
+  @keyframes fx-flash{0%{opacity:0;} 14%{opacity:1;} 100%{opacity:0;}}
+  .fx-ring{
+    position:absolute; left:50%; top:42%; width:60px; height:60px; margin:-30px 0 0 -30px;
+    border:6px solid #d9453a; border-radius:50%;
+    box-shadow:0 0 18px rgba(217,69,58,0.8), inset 0 0 14px rgba(217,69,58,0.6);
+    opacity:0; animation:fx-ring 1.15s ease-out forwards;
+  }
+  @keyframes fx-ring{
+    0%{transform:scale(0.2); opacity:0.95;}
+    100%{transform:scale(7.5); opacity:0;}
+  }
+  .fx-emoji{
+    position:absolute; font-size:var(--sz,2rem); line-height:1; opacity:0;
+    animation:fx-rise var(--dur,2s) ease-out forwards;
+  }
+  @keyframes fx-rise{
+    0%{transform:translate3d(0,0,0) scale(0.5) rotate(0deg); opacity:0;}
+    15%{opacity:1;}
+    100%{transform:translate3d(var(--dx,0px),var(--dy,-60vh),0) scale(1.15) rotate(var(--rot,0deg)); opacity:0;}
+  }
+
+  #fx-banner{
+    position:fixed; left:50%; top:12%;
+    transform:translate(-50%,-20px) scale(0.8);
+    width:max-content; max-width:min(420px,92vw);
+    padding:14px 22px; border-radius:12px; border:3px solid var(--brass-light);
+    font-family:'Bebas Neue', 'Arial Narrow', sans-serif;
+    font-size:1.5rem; line-height:1.2; letter-spacing:0.03em; text-align:center;
+    white-space:pre-line; overflow-wrap:anywhere; opacity:0; pointer-events:none; z-index:1000;
+    box-shadow:0 12px 34px rgba(0,0,0,0.55);
+  }
+  #fx-banner.good{background:var(--green); color:var(--cream);}
+  #fx-banner.bad{background:var(--red); color:var(--cream); border-color:var(--ink);}
+  #fx-banner.epic{background:linear-gradient(135deg,#f6d77a,#c8962f); color:var(--ink); border-color:var(--ink);}
+  #fx-banner.nick{background:var(--ink); color:var(--cream);}
+  #fx-banner.show{animation:fx-banner-in 0.38s cubic-bezier(0.2,1.5,0.4,1) forwards;}
+  #fx-banner.hide{animation:fx-banner-out 0.3s ease-in forwards;}
+  @keyframes fx-banner-in{
+    from{opacity:0; transform:translate(-50%,-24px) scale(0.75);}
+    to{opacity:1; transform:translate(-50%,0) scale(1);}
+  }
+  @keyframes fx-banner-out{
+    from{opacity:1; transform:translate(-50%,0) scale(1);}
+    to{opacity:0; transform:translate(-50%,-16px) scale(0.95);}
+  }
+
+  .fx-shake{animation:fx-shake 0.65s ease-in-out;}
+  @keyframes fx-shake{
+    10%,90%{transform:translateX(-3px);} 20%,80%{transform:translateX(6px);}
+    30%,50%,70%{transform:translateX(-9px);} 40%,60%{transform:translateX(9px);}
+  }
+  .fx-wobble{animation:fx-wobble 0.95s ease-in-out;}
+  @keyframes fx-wobble{
+    0%,100%{transform:rotate(0) translateY(0);} 20%{transform:rotate(-3deg) translateY(4px);}
+    40%{transform:rotate(3deg) translateY(6px);} 60%{transform:rotate(-2deg) translateY(3px);}
+    80%{transform:rotate(1deg);}
+  }
+  .fx-fire{animation:fx-fire 1.6s ease-out;}
+  @keyframes fx-fire{
+    0%{transform:scale(1); text-shadow:0 0 10px rgba(241,230,204,0.25);}
+    15%{transform:scale(1.22); text-shadow:0 -4px 10px #ffb300, 0 -10px 22px #ff6a00, 0 -18px 34px #d62800;}
+    35%{transform:scale(1.12); text-shadow:0 -6px 14px #ffb300, 0 -14px 26px #ff4500, 0 -22px 40px #b81d00;}
+    60%{transform:scale(1.16); text-shadow:0 -4px 10px #ffb300, 0 -10px 22px #ff6a00, 0 -18px 34px #d62800;}
+    100%{transform:scale(1); text-shadow:0 0 10px rgba(241,230,204,0.25);}
+  }
+  @media (prefers-reduced-motion: reduce){
+    .fx-shake,.fx-wobble,.fx-fire{animation:none !important;}
   }
 
   /* --- Game screen --- */
@@ -605,6 +729,11 @@
       <span class="player-progress">🏆 LEADERBOARD</span>
       <button class="ghost small" id="leaderboard-back">← Back</button>
     </div>
+    <div>
+      <h2 class="section-title">Current Nicknames</h2>
+      <p class="hint">Exactly one nickname is up for grabs at the end of every game — it sticks with its holder until someone else earns it.</p>
+      <div id="nicknames-content"></div>
+    </div>
     <div id="leaderboard-content"></div>
     <button class="ghost small" id="leaderboard-reset">Reset all stats</button>
     <div class="row confirm-row" id="lb-reset-confirm-row">
@@ -697,8 +826,11 @@
 
 </div>
 
+<div id="fx-layer" aria-hidden="true"></div>
+<div id="fx-banner" role="status" aria-live="polite"></div>
+
 <script>
-const NAME_OPTIONS = ["Taylor","Max","Michael","Nathan","Andrew","Anders","Chanelle","Rose","Pat","Caillin","Tom","Jeep"];
+const NAME_OPTIONS = ["Taylor","Max","Michael","Nathan","Andrew","Anders","Chanelle","Rose","Pat","Caillin","Tom","Jeep","Kate","Ethan","Scott"];
 
 let startScore = 501;
 let doubleOut = true;
@@ -729,9 +861,10 @@ let leaderboard = {};      // { name: {wins, doubles, triples, bullseyes} }
 const hasArtifactStorage = (typeof window !== 'undefined' &&
     window.storage && typeof window.storage.get === 'function' && typeof window.storage.set === 'function');
 
-async function storageGet(key){
+async function storageGet(key, shared){
+  shared = !!shared;
   if (hasArtifactStorage){
-    try{ return await window.storage.get(key); }catch(e){ return null; }
+    try{ return await window.storage.get(key, shared); }catch(e){ return null; }
   }
   try{
     const raw = localStorage.getItem(key);
@@ -739,9 +872,10 @@ async function storageGet(key){
   }catch(e){ return null; }
 }
 
-function storageSet(key, value){
+function storageSet(key, value, shared){
+  shared = !!shared;
   if (hasArtifactStorage){
-    try{ window.storage.set(key, value, false).catch(() => {}); }catch(e){ /* ignore */ }
+    try{ window.storage.set(key, value, shared).catch(() => {}); }catch(e){ /* ignore */ }
     return;
   }
   try{ localStorage.setItem(key, value); }catch(e){ /* ignore — storage unavailable */ }
@@ -801,38 +935,189 @@ async function loadState(){
   return true;
 }
 
-// ---------- LEADERBOARD (persists across games) ----------
+// ---------- LEADERBOARD (persists across games, syncs across devices) ----------
+// Uses shared storage: when this file is opened via the same Claude artifact
+// link, stats sync across everyone's phones. When opened as a standalone
+// downloaded file there's no server involved, so it falls back to this
+// device's own storage only (see storageGet/storageSet above).
 async function loadLeaderboard(){
   try{
-    const result = await storageGet(LB_KEY);
+    const result = await storageGet(LB_KEY, true);
     if (result && result.value) leaderboard = JSON.parse(result.value);
   }catch(e){ leaderboard = {}; }
 }
 function saveLeaderboard(){
-  storageSet(LB_KEY, JSON.stringify(leaderboard));
+  storageSet(LB_KEY, JSON.stringify(leaderboard), true);
+}
+function realPlayerNames(){
+  return Object.keys(leaderboard).filter(k => k !== '__nicknames__');
 }
 function ensureLbEntry(name){
-  if (!leaderboard[name]) leaderboard[name] = { wins: 0, doubles: 0, triples: 0, bullseyes: 0 };
+  if (!leaderboard[name]){
+    leaderboard[name] = {
+      wins: 0, doubles: 0, triples: 0, bullseyes: 0,
+      busts: 0, totalScored: 0, totalDartsThrown: 0,
+      bestTurnScore: 0, bigCheckouts: 0, lastUpdated: 0
+    };
+  }
   return leaderboard[name];
 }
-function recordDartStats(name, dartLabels){
+
+// Records career totals used by the "Most Wins / Doubles / Triples / Bullseyes"
+// category lists on the leaderboard screen. outcome is 'normal' | 'bust' | 'win'.
+function recordVisitStats(name, dartLabels, scoredSoFar, outcome){
   const entry = ensureLbEntry(name);
   dartLabels.forEach(label => {
     if (/^D\d+$/.test(label)) entry.doubles++;
     else if (/^T\d+$/.test(label)) entry.triples++;
     else if (label === 'BULL') entry.bullseyes++;
   });
+  entry.totalDartsThrown += (dartLabels.length || 3);
+  entry.totalScored += (scoredSoFar || 0);
+  if ((scoredSoFar || 0) > entry.bestTurnScore) entry.bestTurnScore = scoredSoFar;
+  if (outcome === 'bust') entry.busts++;
+  if (outcome === 'win'){
+    entry.wins++;
+    if ((scoredSoFar || 0) >= 96) entry.bigCheckouts++;
+  }
+  entry.lastUpdated = Date.now();
   saveLeaderboard();
 }
-function recordWin(name){
-  ensureLbEntry(name).wins++;
+
+// ---------- NICKNAME ENGINE ----------
+// Exactly one nickname changes hands per finished game — that's what keeps
+// it interesting. Each nickname is its own "belt": whoever last won it holds
+// it (leaderboard.__nicknames__[id]) until either someone else earns that
+// same belt in a later game, or (display-wise) the player already holds a
+// higher-priority belt so this one doesn't show for them.
+const NICKNAMES = [
+  { id: 'golden-dart', name: 'The Golden Dart', icon: '👑', reason: 'Won the most recent game' },
+  { id: 'runner-up', name: 'Born to Runner Up', icon: '🥈', reason: 'Closest to winning without actually winning' },
+  { id: 'bust-master', name: 'Bust Master', icon: '💀', reason: 'Came last in the most recent game' },
+  { id: 'nuke', name: 'The Nuke', icon: '☢️', reason: 'Highest scoring average that game' },
+  { id: 'vader', name: 'Dart Vader', icon: '🖤', reason: 'Most busts in that game' },
+  { id: 'bull', name: 'The Bull', icon: '🔴', reason: 'Hit a bullseye that game' },
+  { id: 'cool-hand', name: 'Cool Hand', icon: '🃏', reason: 'Most doubles hit that game' },
+  { id: 'triple-threat', name: 'Triple Threat', icon: '🎯', reason: 'Most triples hit that game' },
+  { id: 'iron-sights', name: 'Iron Sights', icon: '🔫', reason: 'Landed the biggest single visit (60+)' },
+  { id: 'closer', name: 'The Closer', icon: '💰', reason: 'Won with a big (96+) checkout' },
+  { id: 'iceman', name: 'Iceman', icon: '🧊', reason: 'Zero busts across a solid game' }
+];
+
+function getNickname(name){
+  const holders = leaderboard.__nicknames__ || {};
+  for (let i = 0; i < NICKNAMES.length; i++){
+    if (holders[NICKNAMES[i].id] === name) return NICKNAMES[i];
+  }
+  return null;
+}
+
+function nicknameTagHtml(name){
+  const nk = getNickname(name);
+  if (!nk) return '';
+  return `<div class="nickname-tag">${nk.icon} ${escapeHtml(nk.name)}</div>`;
+}
+
+// Called once, right when a game is won. Looks at everyone's turns from
+// THIS game only, works out which nicknames were actually earned, and
+// hands out exactly one of them (picked at random among the ones earned)
+// so the same belt doesn't get re-awarded every single game.
+function awardGameNickname(winnerName){
+  if (!leaderboard.__nicknames__) leaderboard.__nicknames__ = {};
+  if (!players || players.length === 0) return null;
+
+  const stats = players.map(pl => {
+    let doubles = 0, triples = 0, bullseyes = 0, busts = 0, bestTurn = 0;
+    pl.turns.forEach(t => {
+      (t.darts || []).forEach(label => {
+        if (/^D\d+$/.test(label)) doubles++;
+        else if (/^T\d+$/.test(label)) triples++;
+        else if (label === 'BULL') bullseyes++;
+      });
+      if (t.bust) busts++;
+      if (typeof t.total === 'number' && t.total > bestTurn) bestTurn = t.total;
+    });
+    const turnsPlayed = pl.turns.length;
+    const avg = pl.dartsThrown > 0 ? (pl.totalScored / pl.dartsThrown * 3) : 0;
+    return { name: pl.name, doubles, triples, bullseyes, busts, bestTurn, turnsPlayed, avg, finalScore: pl.score };
+  });
+
+  const candidates = [];
+  candidates.push({ id: 'golden-dart', playerName: winnerName });
+
+  const others = stats.filter(s => s.name !== winnerName);
+  if (others.length){
+    const closest = others.slice().sort((a,b) => a.finalScore - b.finalScore)[0];
+    const farthest = others.slice().sort((a,b) => b.finalScore - a.finalScore)[0];
+    candidates.push({ id: 'runner-up', playerName: closest.name });
+    candidates.push({ id: 'bust-master', playerName: farthest.name });
+  }
+
+  const avgEligible = stats.filter(s => s.turnsPlayed >= 2);
+  if (avgEligible.length){
+    const top = avgEligible.slice().sort((a,b) => b.avg - a.avg)[0];
+    if (top.avg > 0) candidates.push({ id: 'nuke', playerName: top.name });
+  }
+
+  const bustTop = stats.slice().sort((a,b) => b.busts - a.busts)[0];
+  if (bustTop && bustTop.busts >= 1) candidates.push({ id: 'vader', playerName: bustTop.name });
+
+  const bullTop = stats.slice().sort((a,b) => b.bullseyes - a.bullseyes)[0];
+  if (bullTop && bullTop.bullseyes >= 1) candidates.push({ id: 'bull', playerName: bullTop.name });
+
+  const dblTop = stats.slice().sort((a,b) => b.doubles - a.doubles)[0];
+  if (dblTop && dblTop.doubles >= 1) candidates.push({ id: 'cool-hand', playerName: dblTop.name });
+
+  const tplTop = stats.slice().sort((a,b) => b.triples - a.triples)[0];
+  if (tplTop && tplTop.triples >= 1) candidates.push({ id: 'triple-threat', playerName: tplTop.name });
+
+  const bestTop = stats.slice().sort((a,b) => b.bestTurn - a.bestTurn)[0];
+  if (bestTop && bestTop.bestTurn >= 60) candidates.push({ id: 'iron-sights', playerName: bestTop.name });
+
+  const winnerPlayer = players.find(pl => pl.name === winnerName);
+  const winningTurn = winnerPlayer && winnerPlayer.turns[winnerPlayer.turns.length - 1];
+  if (winningTurn && typeof winningTurn.total === 'number' && winningTurn.total >= 96){
+    candidates.push({ id: 'closer', playerName: winnerName });
+  }
+
+  const icemanEligible = stats.filter(s => s.turnsPlayed >= 3 && s.busts === 0)
+      .sort((a,b) => b.turnsPlayed - a.turnsPlayed);
+  if (icemanEligible.length) candidates.push({ id: 'iceman', playerName: icemanEligible[0].name });
+
+  if (candidates.length === 0) return null;
+  const chosen = candidates[Math.floor(Math.random() * candidates.length)];
+  leaderboard.__nicknames__[chosen.id] = chosen.playerName;
   saveLeaderboard();
+  return chosen;
+}
+
+function renderNicknamesBoard(){
+  const wrap = document.getElementById('nicknames-content');
+  if (!wrap) return;
+  wrap.innerHTML = '';
+  const holders = leaderboard.__nicknames__ || {};
+  let any = false;
+  NICKNAMES.forEach(nk => {
+    const holder = holders[nk.id];
+    if (!holder) return;
+    any = true;
+    const row = document.createElement('div');
+    row.className = 'nickname-board-row';
+    row.innerHTML = `<span class="nickname-board-icon">${nk.icon}</span>
+      <span class="nickname-board-info"><strong>${escapeHtml(nk.name)}</strong><br>
+      <span class="nickname-board-reason">${escapeHtml(nk.reason)}</span></span>
+      <span class="nickname-board-holder">${escapeHtml(holder)}</span>`;
+    wrap.appendChild(row);
+  });
+  if (!any){
+    wrap.innerHTML = '<p class="hint">No nicknames claimed yet — finish a game to hand one out.</p>';
+  }
 }
 
 function renderTopWinners(){
   const wrap = document.getElementById('top-winners-list');
   if (!wrap) return;
-  const top = Object.keys(leaderboard)
+  const top = realPlayerNames()
       .map(n => ({ name: n, wins: leaderboard[n].wins || 0 }))
       .filter(e => e.wins > 0)
       .sort((a,b) => b.wins - a.wins)
@@ -848,16 +1133,17 @@ function renderTopWinners(){
     const row = document.createElement('div');
     row.className = 'top-winner-row';
     row.innerHTML = `<span class="top-winner-medal">${medals[i]}</span>
-                      <span class="top-winner-name">${escapeHtml(e.name)}</span>
+                      <span class="top-winner-name">${escapeHtml(e.name)}${nicknameTagHtml(e.name)}</span>
                       <span class="top-winner-count">${e.wins} win${e.wins === 1 ? '' : 's'}</span>`;
     wrap.appendChild(row);
   });
 }
 
 function renderLeaderboard(){
+  renderNicknamesBoard();
   const wrap = document.getElementById('leaderboard-content');
   wrap.innerHTML = '';
-  const names = Object.keys(leaderboard);
+  const names = realPlayerNames();
   if (names.length === 0){
     wrap.innerHTML = '<p class="hint">No games recorded yet — play a leg to start the leaderboard.</p>';
     return;
@@ -972,9 +1258,19 @@ function renderRoster(){
   selectedPlayers.forEach((name, i) => {
     const pill = document.createElement('div');
     pill.className = 'roster-pill';
+    const info = document.createElement('div');
+    info.className = 'roster-pill-info';
     const span = document.createElement('span');
     span.textContent = name;
-    pill.appendChild(span);
+    info.appendChild(span);
+    const nk = getNickname(name);
+    if (nk){
+      const nkSpan = document.createElement('span');
+      nkSpan.className = 'roster-pill-nickname';
+      nkSpan.textContent = `${nk.icon} ${nk.name}`;
+      info.appendChild(nkSpan);
+    }
+    pill.appendChild(info);
     const rm = document.createElement('button');
     rm.textContent = '×';
     rm.setAttribute('aria-label', `Remove ${name}`);
@@ -1027,7 +1323,9 @@ function startGame(){
     score: startScore,
     dartsThrown: 0,
     totalScored: 0,
-    turns: []
+    turns: [],
+    bustCount: 0,
+    nextRoastAt: pickRoastGap()
   }));
   currentPlayerIndex = 0;
   document.getElementById('game-title').textContent =
@@ -1039,6 +1337,7 @@ function startGame(){
 }
 
 function beginTurn(){
+  turnCounter++;
   turnDarts = [];
   turnStartScore = players[currentPlayerIndex].score;
   turnEnded = false;
@@ -1219,6 +1518,475 @@ document.getElementById('quick-submit').addEventListener('click', () => {
   evaluateTurnState();
 });
 
+// ---------- FX: BANTER + ANIMATIONS ----------
+const FX_REDUCED = !!(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches);
+const FX = { queue: [], showing: false, lastLine: {}, bags: {}, visitBanner: false, t1: null, t2: null };
+
+const LINES = {
+  // --- everyday lines ---
+  win: [
+    "FUCK YEAH! {name} takes the leg!",
+    "Absolute legend. Someone get {name} a beer.",
+    "Game shot! The crowd goes fucking mental!",
+    "{name} wins! Deal closed, champagne's on you.",
+    "That's game, and that's {name}'s ego growing another size.",
+    "{name} just closed the biggest deal of the night.",
+    "Ring the bell! {name} wins the leg!",
+    "Holy shit, {name} actually did it.",
+    "{name}: 1. Everyone else: absolutely fuck all.",
+    "Take a bow, {name}. You've earned it, you cocky bastard.",
+    "Game over. {name} wins. Go cry about it, everyone else.",
+    "{name} takes it home. Sign the contract, it's done.",
+    "Winner winner, chicken dinner for {name}!",
+    "And {name} walks away with the leg. Fucking class.",
+    "The double went in! {name} is a goddamn assassin.",
+    "{name} wins and nobody can do shit about it.",
+    "Pack it up, everyone. {name} has this one.",
+    "{name} just ended that like it's a Friday afternoon pipeline review.",
+    "Dead-eye {name}. Cold, clinical, and a bit of a prick about it.",
+    "{name} is insufferable now. Brilliant. Well played."
+  ],
+  bull: [
+    "BULLSEYE! Right in the fuckin' middle!",
+    "Dead centre, baby. {name} is feeling it.",
+    "{name} just ate that bull for breakfast.",
+    "Bullseye! Somebody check the board for damage.",
+    "That's a bullseye, and {name} knows it.",
+    "Right in the red! Fuck me, {name}.",
+    "Bull! {name} is playing like they've got money on it.",
+    "Straight through the bullseye. Absolute filth.",
+    "Bullseye! {name} wasn't even looking, I swear.",
+    "Dead on. That bull never stood a chance.",
+    "{name} hit the bull. Pay the man.",
+    "Bullseye! If only {name} was that accurate at cold calling.",
+    "The bull has been slaughtered. Thank you, {name}.",
+    "Fifty points and a lot of ego. Nice one, {name}.",
+    "Centre of the board, centre of attention. {name} loves it.",
+    "{name} just found the bullseye. The G-spot of darts.",
+    "Bull! Don't let it go to your head, {name}. Too late.",
+    "Bullseye, you beautiful bastard.",
+    "Ohhhh, right in the bull. {name} is on one.",
+    "Bullseye! {name}, your dad would be proud of that one."
+  ],
+  triple: [
+    "TRIPLE! Look at {name} showing off.",
+    "Triple top! Who taught you that?",
+    "That's a proper fuckin' triple.",
+    "Triple! {name} is on fire.",
+    "Look at the size of that triple, {name}.",
+    "Triple! Three times the points and ten times the ego.",
+    "{name} hit that triple like it owed them money.",
+    "Treble trouble! {name} is cooking.",
+    "Triple! Fuck yeah, {name}.",
+    "Right in the thin bit! {name} doesn't miss.",
+    "{name} hit the triple. Somebody call the press.",
+    "That's what we call a money shot.",
+    "Triple! {name} has been practising behind our backs.",
+    "{name} went triple, no apologies.",
+    "Triple! Absolutely fucking surgical.",
+    "In the tiny ring! How, {name}? HOW?",
+    "Big triple energy from {name}.",
+    "Three times the points. {name} is selling like it's end of quarter.",
+    "Triple! {name} is making the rest of us look shit.",
+    "{name} hit the triple like it's the last slice of pizza. Greedy and perfect."
+  ],
+  double: [
+    "Nice double. Clinical as hell.",
+    "Double trouble, {name}!",
+    "Double! {name} is getting dangerous.",
+    "That's a cheeky little double.",
+    "Double top! Pretty fucking tidy.",
+    "{name} hit the double. Easy as that.",
+    "Double! {name} knows exactly what they're doing.",
+    "Look at {name} finding the double like a pro.",
+    "Right on the wire! Lovely double.",
+    "Double! Fuck me, that's neat.",
+    "{name} just doubled down and it paid off.",
+    "Double! Somebody's been practising.",
+    "Smooth double, {name}. Smooth as a politician.",
+    "That's a double, and it's hot.",
+    "Doubles are where winners are made. {name} is paying attention.",
+    "Wire to wire double. {name} is ice cold.",
+    "Double! Don't make it weird, {name}.",
+    "Another double for {name}. Absolutely cooking.",
+    "That double had {name}'s name on it.",
+    "Double! {name} is scaring the shit out of everyone."
+  ],
+  big: [
+    "That's a ton. Somebody's been practising.",
+    "{name} just dropped the hammer.",
+    "ONE HUNDRED AND... something. Fucking good anyway.",
+    "A ton! {name} is taking this seriously.",
+    "100+! {name} didn't come to play, they came to win.",
+    "That's a proper visit, {name}. Tidy.",
+    "Triple figures! {name} is flying.",
+    "{name} just put up a ton like it was nothing.",
+    "Big numbers from {name}. Somebody call the bank.",
+    "That's a ton. Time for everyone else to start sweating.",
+    "{name} is hitting numbers like it's end of quarter.",
+    "Over a hundred. {name} is on a different level.",
+    "Fuck me, {name}, that's a big visit.",
+    "{name} came out swinging with a ton.",
+    "Heavy scoring from {name}. The board is crying.",
+    "That's a hundred-plus and a lot of confidence.",
+    "{name} just earned their commission on that one.",
+    "Triple figures, baby!",
+    "Look at those numbers, {name}. Get in.",
+    "A ton! {name} is scaring the competition."
+  ],
+  one80: [
+    "ONE HUNDRED AND EIGHTY! Holy shit!",
+    "ONE HUNDRED AND EIGHTY! {name} just dropped the hammer.",
+    "Brightday Energy boooooooooyyyyyyyyyyyy",
+    "180! {name}, you absolute fucking maniac!",
+    "MAXIMUM! That's the best visit you can throw, {name}!",
+    "Three in the bed! {name} just hit 180!",
+    "ONE HUNDRED AND EIGHTY! The crowd goes wild!",
+    "Max score, {name}! Perfect visit!",
+    "180! Somebody get this person a medal.",
+    "{name} hit three triple twenties. That's just rude.",
+    "180! I bet {name}'s dad is crying right now.",
+    "That's a 180 and I'm not even mad, {name}.",
+    "180! {name} is fucking unstoppable.",
+    "Perfect visit! {name} is a goddamn wizard.",
+    "ONE HUNDRED AND EIGHTYYYYY! Get {name} in the hall of fame.",
+    "180! Do you even know how hard that is, {name}?! Jesus.",
+    "Triple twenty, triple twenty, triple twenty. {name} is a legend.",
+    "180! Quit your job, {name}. Go pro.",
+    "{name} hit the max. The max! Fuck off, that's unreal.",
+    "180! {name} has peaked tonight. It's all downhill from here."
+  ],
+  bust: [
+    "Ohhhh booooo. Bust.",
+    "Wow {name}, you really dropped the ball today.",
+    "That's a bust. Pathetic. Love it."
+  ],
+  maxbust: [
+    "Woooah what are you German?"
+  ],
+  miss: [
+    "Missed the board? Were you aiming at the wall?",
+    "Even the wall's embarrassed for you."
+  ],
+  nick: [
+    "New nickname unlocked. Wear it with pride (or shame)."
+  ],
+  // --- unhinged: only for really great shots ---
+  pumpup: [
+    "Absolute unit. I bet you get all the bitches.",
+    "That's the hottest thing {name} has ever done.",
+    "Someone check {name}'s pulse, that was fucking filthy.",
+    "{name}, you magnificent bastard.",
+    "Marry me, {name}. Right now.",
+    "Finally, something your dad can be proud of.",
+    "Quota smashed, darts smashed. {name} is just smashing everything today.",
+    "Put that on the board, and on the commission sheet.",
+    "Closer energy. {name} just signed that shot.",
+    "Who sold you your soul, {name}, and where do I sign?",
+    "{name}! {name}! {name}! Someone start the chant.",
+    "{name} woke up and chose violence.",
+    "Ladies and gentlemen, {name} has entered the chat.",
+    "Sit down, everyone else. {name} is working.",
+    "{name}, you absolute fucking weapon.",
+    "Brightday Energy boooooooooyyyyyyyyyyyy",
+    "Wooooahh settle down tripod",
+    "Big Dick Playerrrrrrrrrr",
+    "Absolute Fucking Legend",
+    "Get it Grrlllll",
+    "That girl got cake"
+  ],
+  // --- unhinged: bust puns, mostly for when someone's stuck trying to hit a double ---
+  endbust: [
+    "Remember that band... Busted?",
+    "Bust a move, {name}. Not a nut. Jesus.",
+    "{name} just busted a nut all over that board.",
+    "Busted again. {name} finishes early, just like in bed.",
+    "Premature bust. That's {name}'s whole personality, honestly.",
+    "Two minutes on the oche and {name}'s already done. Classic.",
+    "Bust, bust, bust. {name} is a one-pump chump.",
+    "Performance anxiety, {name}? It happens to loads of guys.",
+    "Bust a move, bust a nut, bust your own balls. {name} does it all.",
+    "{name} couldn't find the double if it came with GPS.",
+    "Can't hit a double, can't hit quota, can't hit the G-spot either.",
+    "Someone get {name} some Viagra. The double just won't go in.",
+    "{name} brought a small dart to a big double fight.",
+    "Busted. Like {name}'s browser history.",
+    "Who you gonna call? Not {name}. Bustin' doesn't make them feel good.",
+    "Somebody check {name}'s balls. They've dropped everything else.",
+    "{name} is the type of guy who busts before the bell. Every. Single. Time.",
+    "That's another bust. Maybe the problem isn't the board, {name}.",
+    "{name}'s double finish is like their sex life. Everyone's heard about it, nobody's seen it.",
+    "Hit a double? {name} can't even hit a deadline.",
+    "Hands up, {name}. You're busted, and you've been busted all night."
+  ],
+  // --- unhinged: only for really terrible shots ---
+  slander: [
+    "Wow, no wonder she left you.",
+    "Jesus, maybe try a different game.",
+    "{name} has the hand-eye coordination of a drunk labrador.",
+    "My nan throws better than that, and she's got arthritis.",
+    "That wasn't a dart, that was a cry for help.",
+    "That explains your sales numbers, {name}.",
+    "Is this how you handle your pipeline too?",
+    "Even your mum's embarrassed, and she loves you.",
+    "Pack it in, {name}. Go home and think about what you've done.",
+    "{name} couldn't hit the board if it was the only thing in the room.",
+    "{name} threw that like they're not paying for the darts.",
+    "Somebody take {name}'s darts away before they hurt someone.",
+    "{name}, mate, it's a board, not a suggestion.",
+    "Is {name} even trying, or is this a bit?",
+    "HR called, {name}. They want a word about that throw.",
+    "Weak-ass MF. Grow a spine, {name}."
+  ]
+};
+
+// Unhinged lines are rare on purpose: never two turns in a row, and busts only
+// roast a player every 3rd / 5th / 7th time (re-rolled after each roast).
+let turnCounter = 0;
+let unhingedLastTurn = -99;
+function unhingedReady(){ return (turnCounter - unhingedLastTurn) >= 2; }
+function markUnhinged(){ unhingedLastTurn = turnCounter; }
+function pickRoastGap(){ return [3, 3, 5, 7][Math.floor(Math.random() * 4)]; }
+
+// Shuffle-bag: every line in a pool gets used once before any repeats, so
+// with 20 lines per pool it never feels like the same comment twice.
+function fxLine(pool, name){
+  const arr = LINES[pool] || [];
+  if (!arr.length) return '';
+  let bag = FX.bags[pool];
+  if (!bag || !bag.length){
+    bag = arr.map((_, i) => i);
+    for (let i = bag.length - 1; i > 0; i--){
+      const j = Math.floor(Math.random() * (i + 1));
+      [bag[i], bag[j]] = [bag[j], bag[i]];
+    }
+    if (bag.length > 1 && bag[bag.length - 1] === FX.lastLine[pool]){
+      const k = Math.floor(Math.random() * (bag.length - 1));
+      [bag[bag.length - 1], bag[k]] = [bag[k], bag[bag.length - 1]];
+    }
+    FX.bags[pool] = bag;
+  }
+  const idx = bag.pop();
+  FX.lastLine[pool] = idx;
+  return arr[idx].replace(/\{name\}/g, name);
+}
+
+function fxRand(a, b){ return a + Math.random() * (b - a); }
+function fxAdd(el, ms){
+  const layer = document.getElementById('fx-layer');
+  if (!layer) return;
+  layer.appendChild(el);
+  setTimeout(() => el.remove(), ms);
+}
+function fxVibrate(pattern){
+  try{ if (navigator.vibrate) navigator.vibrate(pattern); }catch(e){ /* not supported */ }
+}
+function fxClassPulse(el, cls, ms){
+  if (!el || FX_REDUCED) return;
+  el.classList.remove(cls);
+  void el.offsetWidth;
+  el.classList.add(cls);
+  setTimeout(() => el.classList.remove(cls), ms);
+}
+function fxConfetti(count){
+  if (FX_REDUCED) return;
+  const colors = ['#F1E6CC', '#E04B3C', '#2F8F5B', '#E7B94E', '#ffffff'];
+  for (let i = 0; i < count; i++){
+    const d = document.createElement('div');
+    d.className = 'fx-confetti';
+    d.style.left = fxRand(0, 100) + 'vw';
+    d.style.background = colors[i % colors.length];
+    d.style.setProperty('--dur', fxRand(2.2, 4.2) + 's');
+    d.style.setProperty('--dx', fxRand(-140, 140) + 'px');
+    d.style.setProperty('--rot', fxRand(360, 1100) + 'deg');
+    d.style.animationDelay = fxRand(0, 0.9) + 's';
+    fxAdd(d, 5600);
+  }
+}
+function fxFlash(color){
+  if (FX_REDUCED) return;
+  const f = document.createElement('div');
+  f.className = 'fx-flash';
+  f.style.setProperty('--fxc', color);
+  fxAdd(f, 1100);
+}
+function fxRings(){
+  if (FX_REDUCED) return;
+  for (let i = 0; i < 3; i++){
+    const r = document.createElement('div');
+    r.className = 'fx-ring';
+    r.style.animationDelay = (i * 0.18) + 's';
+    fxAdd(r, 1800);
+  }
+}
+// mode: 'rise' (up from the bottom), 'fall' (down from the top), 'burst' (out from the middle)
+function fxEmoji(emoji, count, mode){
+  if (FX_REDUCED) return;
+  for (let i = 0; i < count; i++){
+    const e = document.createElement('div');
+    e.className = 'fx-emoji';
+    e.textContent = emoji;
+    e.style.setProperty('--sz', fxRand(1.5, 2.8) + 'rem');
+    e.style.setProperty('--dur', fxRand(1.5, 2.6) + 's');
+    e.style.setProperty('--rot', fxRand(-50, 50) + 'deg');
+    e.style.animationDelay = fxRand(0, 0.5) + 's';
+    if (mode === 'rise'){
+      e.style.left = fxRand(4, 94) + 'vw';
+      e.style.bottom = '-30px';
+      e.style.setProperty('--dx', fxRand(-50, 50) + 'px');
+      e.style.setProperty('--dy', '-' + fxRand(55, 95) + 'vh');
+    } else if (mode === 'fall'){
+      e.style.left = fxRand(4, 94) + 'vw';
+      e.style.top = '-30px';
+      e.style.setProperty('--dx', fxRand(-50, 50) + 'px');
+      e.style.setProperty('--dy', fxRand(80, 112) + 'vh');
+    } else {
+      e.style.left = '50%';
+      e.style.top = '40%';
+      e.style.setProperty('--dx', fxRand(-150, 150) + 'px');
+      e.style.setProperty('--dy', fxRand(-150, 130) + 'px');
+    }
+    fxAdd(e, 4000);
+  }
+}
+
+// A new banner replaces whatever's showing straight away (so a line never
+// turns up late for a shot that's already old news). The one exception is a
+// follow-up (the nickname after a win), which waits for the banner before it.
+function showBanner(text, kind, ms, followUp){
+  const item = { text, kind: kind || 'good', ms: ms || 2800 };
+  if (followUp && FX.showing){ FX.queue.push(item); return; }
+  FX.queue = [];
+  playBanner(item);
+}
+function showVisitBanner(text, kind, ms){
+  FX.visitBanner = true;
+  showBanner(text, kind, ms);
+}
+function playBanner(item){
+  const b = document.getElementById('fx-banner');
+  if (!b) return;
+  clearTimeout(FX.t1); clearTimeout(FX.t2);
+  FX.showing = true;
+  b.className = item.kind;
+  b.textContent = item.text;
+  void b.offsetWidth;
+  b.classList.add('show');
+  FX.t1 = setTimeout(() => {
+    b.classList.remove('show');
+    b.classList.add('hide');
+    FX.t2 = setTimeout(() => {
+      b.classList.remove('hide');
+      FX.showing = false;
+      const next = FX.queue.shift();
+      if (next) playBanner(next);
+    }, 330);
+  }, item.ms);
+}
+
+// ---- triggers ----
+// Single dart: bullseye, high triple (15+), high double (16+), second miss in a visit.
+function fxOnDart(kind, value, mult, quiet){
+  const p = players[currentPlayerIndex];
+  if (!p) return;
+  if (kind === 'bull50'){
+    fxRings();
+    fxFlash('rgba(217,69,58,0.5)');
+    fxVibrate(50);
+    if (!quiet) showBanner(fxLine('bull', p.name), 'epic', 2600);
+  } else if (kind === 'number' && mult === 3 && value >= 15){
+    fxClassPulse(document.getElementById('turn-remaining'), 'fx-fire', 1600);
+    fxEmoji('🔥', 10, 'rise');
+    fxVibrate(30);
+    if (!quiet) showBanner(fxLine('triple', p.name), 'good', 2400);
+  } else if (kind === 'number' && mult === 2 && value >= 16){
+    fxEmoji('✨', 10, 'burst');
+    if (!quiet && Math.random() < 0.6) showBanner(fxLine('double', p.name), 'good', 2200);
+  } else if (kind === 'miss'){
+    const misses = turnDarts.filter(d => d.label === 'MISS').length;
+    if (misses === 2 && !quiet) showBanner(fxLine('miss', p.name), 'bad', 2400);
+  }
+}
+
+// A finished, non-bust visit: 100+, 140+, 180, or three misses.
+function fxOnVisit(p, total){
+  const remEl = document.getElementById('turn-remaining');
+  const allMiss = (entryMode === 'quick')
+      ? total === 0
+      : (turnDarts.length >= 3 && turnDarts.every(d => d.label === 'MISS'));
+
+  if (total === 180){
+    fxConfetti(90);
+    fxFlash('rgba(255,205,90,0.85)');
+    fxEmoji('🔥', 18, 'rise');
+    fxClassPulse(remEl, 'fx-fire', 1600);
+    fxVibrate([80, 40, 80, 40, 160]);
+    if (unhingedReady()){ markUnhinged(); showVisitBanner(fxLine('pumpup', p.name), 'epic', 3800); }
+    else showVisitBanner(fxLine('one80', p.name), 'epic', 3200);
+  } else if (total >= 140){
+    fxConfetti(45);
+    fxFlash('rgba(255,205,90,0.6)');
+    fxEmoji('🔥', 12, 'rise');
+    fxClassPulse(remEl, 'fx-fire', 1600);
+    fxVibrate([60, 40, 100]);
+    if (unhingedReady()){ markUnhinged(); showVisitBanner(fxLine('pumpup', p.name), 'epic', 3600); }
+    else showVisitBanner(fxLine('big', p.name), 'epic', 2800);
+  } else if (total >= 100){
+    fxEmoji('🔥', 8, 'rise');
+    fxClassPulse(remEl, 'fx-fire', 1600);
+    fxVibrate(50);
+    showVisitBanner(fxLine('big', p.name), 'good', 2600);
+  } else if (allMiss){
+    fxEmoji('💀', 6, 'fall');
+    if (unhingedReady()){ markUnhinged(); showVisitBanner(fxLine('slander', p.name), 'bad', 3600); }
+    else showVisitBanner(fxLine('miss', p.name), 'bad', 2600);
+  }
+}
+
+// A bust. Everyone gets the shake; only every 3rd/5th/7th bust gets roasted.
+function fxOnBust(p){
+  fxClassPulse(document.querySelector('.app-shell'), 'fx-shake', 700);
+  fxClassPulse(document.querySelector('.turn-panel'), 'fx-wobble', 1000);
+  fxFlash('rgba(156,43,34,0.6)');
+  fxEmoji('💀', 8, 'fall');
+  fxVibrate([70, 40, 140]);
+  const count = (p.bustCount || 0) + 1;
+  const stuckOnDouble = turnStartScore <= 50;   // in checkout range, this is the "can't hit the double" grind
+  if (count >= (p.nextRoastAt || 3) && unhingedReady()){
+    markUnhinged();
+    p.nextRoastAt = count + pickRoastGap();
+    const pool = (stuckOnDouble || Math.random() < 0.35) ? 'endbust' : 'slander';
+    showVisitBanner(fxLine(pool, p.name), 'bad', 3800);
+  } else if (String(p.name).trim().toLowerCase() === 'max' && Math.random() < 0.6){
+    showVisitBanner(fxLine('maxbust', p.name), 'bad', 2800);
+  } else if (Math.random() < (stuckOnDouble ? 0.45 : 0.7)){
+    showVisitBanner(fxLine('bust', p.name), 'bad', 2600);
+  }
+}
+
+// Winning the leg: the big one, plus the nickname that was just handed out.
+function fxOnWin(p, finalLabel, total, awarded){
+  setTimeout(() => {
+    fxConfetti(160);
+    fxFlash('rgba(255,205,90,0.85)');
+    fxEmoji('🎉', 16, 'burst');
+    fxEmoji('🍺', 6, 'rise');
+    fxVibrate([100, 50, 100, 50, 250]);
+    if ((total >= 100 || finalLabel === 'BULL') && unhingedReady()){
+      markUnhinged();
+      showBanner(fxLine('pumpup', p.name), 'epic', 3800);
+    } else {
+      showBanner(fxLine('win', p.name), 'epic', 3400);
+    }
+    if (awarded){
+      const nk = NICKNAMES.find(n => n.id === awarded.id);
+      if (nk){
+        showBanner(`${nk.icon} ${nk.name}\n${awarded.playerName}: ${fxLine('nick', awarded.playerName)}`, 'nick', 4200, true);
+      }
+    }
+  }, 250);
+}
+
 // ---------- THROW LOGIC ----------
 function throwDart(value, kind){
   if (turnEnded) return;
@@ -1237,7 +2005,10 @@ function throwDart(value, kind){
 
   const isDouble = (kind === 'number' && selectedMult === 2) || kind === 'bull50';
   turnDarts.push({label, points, isDouble});
+  FX.visitBanner = false;
   evaluateTurnState();
+  // if the visit just ended, its own banner speaks for this dart
+  fxOnDart(kind, value, selectedMult, FX.visitBanner || pendingOutcome === 'win');
 }
 
 // Evaluate the current (uncommitted) visit and decide whether it's still in
@@ -1290,6 +2061,10 @@ function evaluateTurnState(){
   }
   updateUndoButtonState();
   document.getElementById('bust-btn').disabled = (outcome === 'win');
+  FX.visitBanner = false;
+  const fxPlayer = players[currentPlayerIndex];
+  if (outcome === 'bust') fxOnBust(fxPlayer);
+  else if (outcome === 'normal') fxOnVisit(fxPlayer, scoredSoFar);
   render();
 }
 
@@ -1297,27 +2072,31 @@ function commitCurrentTurn(){
   const p = players[currentPlayerIndex];
   const scoredSoFar = turnDarts.reduce((s,d) => s + d.points, 0);
   const dartLabels = turnDarts.map(d => d.label);
-  recordDartStats(p.name, dartLabels);
 
   if (pendingOutcome === 'bust'){
+    recordVisitStats(p.name, dartLabels, scoredSoFar, 'bust');
+    p.bustCount = (p.bustCount || 0) + 1;
     p.dartsThrown += turnDarts.length;
-    p.turns.push({ darts: dartLabels, remaining: turnStartScore, bust: true, win: false });
+    p.turns.push({ darts: dartLabels, remaining: turnStartScore, bust: true, win: false, total: scoredSoFar });
     currentPlayerIndex = (currentPlayerIndex + 1) % players.length;
     beginTurn();
   } else if (pendingOutcome === 'win'){
+    recordVisitStats(p.name, dartLabels, scoredSoFar, 'win');
     p.score = 0;
     p.dartsThrown += turnDarts.length;
     p.totalScored += scoredSoFar;
-    p.turns.push({ darts: dartLabels, remaining: 0, bust: false, win: true });
-    recordWin(p.name);
+    p.turns.push({ darts: dartLabels, remaining: 0, bust: false, win: true, total: scoredSoFar });
+    const awarded = awardGameNickname(p.name);
     const finalLabel = dartLabels[dartLabels.length - 1];
     render();
     showWinner(finalLabel);
+    fxOnWin(p, finalLabel, scoredSoFar, awarded);
   } else if (pendingOutcome === 'normal'){
+    recordVisitStats(p.name, dartLabels, scoredSoFar, 'normal');
     p.score = turnStartScore - scoredSoFar;
     p.dartsThrown += turnDarts.length;
     p.totalScored += scoredSoFar;
-    p.turns.push({ darts: dartLabels, remaining: p.score, bust: false, win: false });
+    p.turns.push({ darts: dartLabels, remaining: p.score, bust: false, win: false, total: scoredSoFar });
     currentPlayerIndex = (currentPlayerIndex + 1) % players.length;
     beginTurn();
   }
@@ -1351,10 +2130,13 @@ document.getElementById('bust-btn').addEventListener('click', () => {
   if (pendingOutcome === 'win') return; // don't let a stray tap cancel a checkout
   const p = players[currentPlayerIndex];
   const dartLabels = turnDarts.map(d => d.label);
-  if (dartLabels.length) recordDartStats(p.name, dartLabels);
+  const scoredSoFar = turnDarts.reduce((s,d) => s + d.points, 0);
+  recordVisitStats(p.name, dartLabels, scoredSoFar, 'bust');
   const dartsCount = turnDarts.length > 0 ? turnDarts.length : 3;
+  if (pendingOutcome !== 'bust') fxOnBust(p);   // already played if the bust was auto-detected
+  p.bustCount = (p.bustCount || 0) + 1;
   p.dartsThrown += dartsCount;
-  p.turns.push({ darts: dartLabels.length ? dartLabels : ['BUST'], remaining: turnStartScore, bust: true, win: false });
+  p.turns.push({ darts: dartLabels.length ? dartLabels : ['BUST'], remaining: turnStartScore, bust: true, win: false, total: scoredSoFar });
   currentPlayerIndex = (currentPlayerIndex + 1) % players.length;
   beginTurn();
 });
@@ -1379,13 +2161,15 @@ function render(){
     card.className = 'player-card' + (i === currentPlayerIndex ? ' active' : '');
     const avg = p.dartsThrown > 0 ? (p.totalScored / p.dartsThrown * 3).toFixed(1) : '0.0';
     card.innerHTML = `<div class="p-name">${escapeHtml(p.name)}</div>
+                       ${nicknameTagHtml(p.name)}
                        <div class="p-score">${p.score}</div>
                        <div class="p-avg">avg ${avg}</div>`;
     board.appendChild(card);
   });
 
   const cur = players[currentPlayerIndex];
-  document.getElementById('turn-who').textContent = `${cur.name.toUpperCase()}'S TURN`;
+  document.getElementById('turn-who').innerHTML =
+      `${escapeHtml(cur.name.toUpperCase())}'S TURN${nicknameTagHtml(cur.name)}`;
 
   const scoredSoFar = turnDarts.reduce((s,d) => s + d.points, 0);
   const liveRemaining = pendingOutcome === 'bust' ? turnStartScore : turnStartScore - scoredSoFar;
@@ -1455,7 +2239,8 @@ function showWinner(finalDart){
 }
 
 function renderWinnerScreen(winnerName, finalDart){
-  document.getElementById('winner-name').textContent = `${winnerName.toUpperCase()} WINS!`;
+  document.getElementById('winner-name').innerHTML =
+      `${escapeHtml(winnerName.toUpperCase())} WINS!${nicknameTagHtml(winnerName)}`;
   document.getElementById('winner-checkout').textContent = `Checked out on ${finalDart}`;
 
   const table = document.getElementById('stats-table');
@@ -1470,7 +2255,7 @@ function renderWinnerScreen(winnerName, finalDart){
 }
 
 document.getElementById('new-leg-btn').addEventListener('click', () => {
-  players.forEach(p => { p.score = startScore; p.dartsThrown = 0; p.totalScored = 0; p.turns = []; });
+  players.forEach(p => { p.score = startScore; p.dartsThrown = 0; p.totalScored = 0; p.turns = []; p.bustCount = 0; p.nextRoastAt = pickRoastGap(); });
   currentPlayerIndex = 0;
   winnerInfo = null;
   beginTurn();
